@@ -5639,13 +5639,13 @@ button.bg-dark:hover {
   border-top: 1px solid #dee2e6 !important;
 }
 .border-right {
-  border-right: 1px solid #dee2e6 !important;
+  border-right: 1px solid #8da2b5 !important;
 }
 .border-bottom {
   border-bottom: 1px solid #dee2e6 !important;
 }
 .border-left {
-  border-left: 1px solid #dee2e6 !important;
+  border-left: 1px solid #8da2b5 !important;
 }
 .border-0 {
   border: 0 !important;
@@ -5946,6 +5946,8 @@ button.bg-dark:hover {
 .flex-column {
   -ms-flex-direction: column !important;
   flex-direction: column !important;
+  justify-content: space-between!important;
+  
 }
 .flex-row-reverse {
   -ms-flex-direction: row-reverse !important;

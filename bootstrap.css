@@ -5946,7 +5946,7 @@ button.bg-dark:hover {
 .flex-column {
   -ms-flex-direction: column !important;
   flex-direction: column !important;
-  justify-content: space-between!important;
+  justify-content: space-between;
   
 }
 .flex-row-reverse {

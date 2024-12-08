@@ -29,7 +29,7 @@
   --breakpoint-xs: 0;
   --breakpoint-sm: 576px;
   --breakpoint-md: 768px;
-  --breakpoint-lg: 1081px;
+  --breakpoint-lg: 992px;
   --breakpoint-xl: 1200px;
   --font-family-sans-serif: -apple-system, BlinkMacSystemFont, "Segoe UI",
     "Roboto", "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji",
@@ -512,7 +512,7 @@ pre code {
     max-width: 720px;
   }
 }
-@media (min-width: 1081px) {
+@media (min-width: 992px) {
   .container {
     max-width: 960px;
   }
@@ -1130,7 +1130,7 @@ pre code {
     margin-left: 91.666667%;
   }
 }
-@media (min-width: 1081px) {
+@media (min-width: 992px) {
   .col-lg {
     -ms-flex-preferred-size: 0;
     flex-basis: 0;
@@ -3844,7 +3844,7 @@ input[type="submit"].btn-block {
     padding-left: 0;
   }
 }
-@media (min-width: 1081px) {
+@media (min-width: 992px) {
   .navbar-expand-lg {
     -ms-flex-flow: row nowrap;
     flex-flow: row nowrap;
@@ -3883,6 +3883,13 @@ input[type="submit"].btn-block {
     padding-right: 0;
     padding-left: 0;
   }
+	.container {
+		margin-left: 0px;
+		margin-right: 0px;
+		padding-left: 0px;
+		padding-right: 0px
+			
+	}
 }
 @media (min-width: 1200px) {
   .navbar-expand-xl {
@@ -5021,7 +5028,7 @@ button.close {
     max-width: 300px;
   }
 }
-@media (min-width: 1081px) {
+@media (min-width: 992px) {
   .modal-lg {
     max-width: 800px;
   }
@@ -5800,7 +5807,7 @@ button.bg-dark:hover {
     display: inline-flex !important;
   }
 }
-@media (min-width: 1081px) {
+@media (min-width: 992px) {
   .d-lg-none {
     display: none !important;
   }
@@ -6343,7 +6350,7 @@ button.bg-dark:hover {
     align-self: stretch !important;
   }
 }
-@media (min-width: 1081px) {
+@media (min-width: 992px) {
   .flex-lg-row {
     -ms-flex-direction: row !important;
     flex-direction: row !important;
@@ -6650,7 +6657,7 @@ button.bg-dark:hover {
     float: none !important;
   }
 }
-@media (min-width: 1081px) {
+@media (min-width: 992px) {
   .float-lg-left {
     float: left !important;
   }
@@ -7522,7 +7529,7 @@ button.bg-dark:hover {
     margin-left: auto !important;
   }
 }
-@media (min-width: 1081px) {
+@media (min-width: 992px) {
   .m-lg-0 {
     margin: 0 !important;
   }
@@ -8066,7 +8073,7 @@ button.bg-dark:hover {
     text-align: center !important;
   }
 }
-@media (min-width: 1081px) {
+@media (min-width: 992px) {
   .text-lg-left {
     text-align: left !important;
   }
@@ -8235,10 +8242,10 @@ a.text-dark:hover {
     size: a3;
   }
   body {
-    min-width: 1081px !important;
+    min-width: 992px !important;
   }
   .container {
-    min-width: 1081px !important;
+    min-width: 992px !important;
   }
   .navbar {
     display: none;

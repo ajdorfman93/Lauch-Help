@@ -635,8 +635,8 @@ footer small {
 
 }
 
-/* Large devices (desktops, 1081px and up) */
-@media (min-width: 1081px) { 
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) { 
 	.icon-mobile {
 		display: none;
 	}

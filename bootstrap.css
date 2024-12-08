@@ -338,12 +338,12 @@ h6 {
 }
 
 .h2, h2{
-                color: black;
-                font-family: Aharoni;
-                font-style: normal;
-                font-weight: bold;
-                text-decoration: none;
-                font-size: 19pt;
+	color: black;
+	font-family: 'Aharoni';
+	font-style: normal;
+	font-weight: bold;
+	text-decoration: none;
+	font-size: 19pt;
 }
 .h1,
 h1 {
@@ -3890,6 +3890,18 @@ input[type="submit"].btn-block {
 		padding-right: 0px
 			
 	}
+	.zman-svg {		
+		transform-origin: left;
+		transform: scale(1.5);
+		margin: 5px 0px 5px 0px
+			}
+	h3 {
+		font-size: 27pt !important
+		}
+	span {
+		font-size: 18pt !important
+	}
+	
 }
 @media (min-width: 1200px) {
   .navbar-expand-xl {

@@ -29,10 +29,10 @@
   --breakpoint-xs: 0;
   --breakpoint-sm: 576px;
   --breakpoint-md: 768px;
-  --breakpoint-lg: 992px;
+  --breakpoint-lg: 1081px;
   --breakpoint-xl: 1200px;
   --font-family-sans-serif: -apple-system, BlinkMacSystemFont, "Segoe UI",
-    Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji",
+    "Roboto", "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji",
     "Segoe UI Emoji", "Segoe UI Symbol";
   --font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas,
     "Liberation Mono", "Courier New", monospace;
@@ -331,8 +331,8 @@ h4,
 h5,
 h6 {
   margin-bottom: 0.5rem;
-  font-family: "Roboto Light";
-  font-weight: 500;
+  font-family: 'Roboto';
+  font-weight: 200;
   line-height: 1.2;
   color: inherit;
 }
@@ -501,17 +501,7 @@ pre code {
   margin-left: auto;
   margin-top: 15px
 }
-.zman-container {
-  width: 40vw;
-  padding-right: 0px;
-  padding-left: 0px;
-  margin-right: 15;
-  margin-left: 0px;
-  margin-top: 15px;
-  display: flex;
-  flex-direction: row;
-  margin-bottom: 0
-}
+
 @media (min-width: 576px) {
   .container {
     max-width: 540px;
@@ -522,7 +512,7 @@ pre code {
     max-width: 720px;
   }
 }
-@media (min-width: 992px) {
+@media (min-width: 1081px) {
   .container {
     max-width: 960px;
   }
@@ -530,7 +520,7 @@ pre code {
 @media (min-width: 1200px) {
   .container {
     max-width: 1140px;
-  marginmargin}
+	}
 }
 .container-fluid {
   width: 100%;
@@ -1140,7 +1130,7 @@ pre code {
     margin-left: 91.666667%;
   }
 }
-@media (min-width: 992px) {
+@media (min-width: 1081px) {
   .col-lg {
     -ms-flex-preferred-size: 0;
     flex-basis: 0;
@@ -3854,7 +3844,7 @@ input[type="submit"].btn-block {
     padding-left: 0;
   }
 }
-@media (min-width: 992px) {
+@media (min-width: 1081px) {
   .navbar-expand-lg {
     -ms-flex-flow: row nowrap;
     flex-flow: row nowrap;
@@ -5031,7 +5021,7 @@ button.close {
     max-width: 300px;
   }
 }
-@media (min-width: 992px) {
+@media (min-width: 1081px) {
   .modal-lg {
     max-width: 800px;
   }
@@ -5810,7 +5800,7 @@ button.bg-dark:hover {
     display: inline-flex !important;
   }
 }
-@media (min-width: 992px) {
+@media (min-width: 1081px) {
   .d-lg-none {
     display: none !important;
   }
@@ -6353,7 +6343,7 @@ button.bg-dark:hover {
     align-self: stretch !important;
   }
 }
-@media (min-width: 992px) {
+@media (min-width: 1081px) {
   .flex-lg-row {
     -ms-flex-direction: row !important;
     flex-direction: row !important;
@@ -6660,7 +6650,7 @@ button.bg-dark:hover {
     float: none !important;
   }
 }
-@media (min-width: 992px) {
+@media (min-width: 1081px) {
   .float-lg-left {
     float: left !important;
   }
@@ -7532,7 +7522,7 @@ button.bg-dark:hover {
     margin-left: auto !important;
   }
 }
-@media (min-width: 992px) {
+@media (min-width: 1081px) {
   .m-lg-0 {
     margin: 0 !important;
   }
@@ -8076,7 +8066,7 @@ button.bg-dark:hover {
     text-align: center !important;
   }
 }
-@media (min-width: 992px) {
+@media (min-width: 1081px) {
   .text-lg-left {
     text-align: left !important;
   }
@@ -8245,10 +8235,10 @@ a.text-dark:hover {
     size: a3;
   }
   body {
-    min-width: 992px !important;
+    min-width: 1081px !important;
   }
   .container {
-    min-width: 992px !important;
+    min-width: 1081px !important;
   }
   .navbar {
     display: none;

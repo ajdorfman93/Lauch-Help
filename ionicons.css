@@ -20,6 +20,17 @@
   font-weight: normal;
   font-style: normal;
 }
+
+@font-face {
+    font-family: "Aharoni Bold V1";
+    src: url("https://db.onlinewebfonts.com/t/22db60d19480ba0274c9eb6ba877ea9b.eot");
+    src: url("https://db.onlinewebfonts.com/t/22db60d19480ba0274c9eb6ba877ea9b.eot?#iefix")format("embedded-opentype"),
+    url("https://db.onlinewebfonts.com/t/22db60d19480ba0274c9eb6ba877ea9b.woff2")format("woff2"),
+    url("https://db.onlinewebfonts.com/t/22db60d19480ba0274c9eb6ba877ea9b.woff")format("woff"),
+    url("https://db.onlinewebfonts.com/t/22db60d19480ba0274c9eb6ba877ea9b.ttf")format("truetype"),
+    url("https://db.onlinewebfonts.com/t/22db60d19480ba0274c9eb6ba877ea9b.svg#Aharoni Bold V1")format("svg");
+}
+
 .ion,
 .ionicons,
 .ion-ios-add:before,

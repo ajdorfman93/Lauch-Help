@@ -71,7 +71,6 @@ p {
 	font-weight: 400;
 	letter-spacing: .05em;
 	color: #53627C;
-	margin-bottom: 
 }
 
 ul {
@@ -81,7 +80,7 @@ ul {
 
 b {        
 		color: black;
-        font-family: Aharoni;
+        font-family: 'Aharoni';
         font-style: normal;
         font-weight: bold;
         text-decoration: none;
@@ -643,6 +642,9 @@ footer small {
 	.nav-logo-mobile {
 		display: none;
 	}
+
+	}
+	
 }
 
 /* Extra large devices (large desktops, 1200px and up) */

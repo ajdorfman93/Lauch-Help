@@ -133,10 +133,13 @@ pre[class*="language-"] {
  *
  *   Released on: December 18, 2020
  * ------------------------------------------------------------------- */
-
-.container {
-	margin-left: 15px
+.container .header{
+	margin-left: 40px
 }
+.container {
+	margin-left: 20px
+}
+
 
 @font-face {
     font-family : "swiper-icons";

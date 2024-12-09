@@ -236,24 +236,6 @@
  * github.com/necolas/normalize.css
  * -------------------------------------------------------------------- */
 
-html {
-    line-height              : 1.15;
-    -webkit-text-size-adjust : 100%;
-}
-
-body {
-    margin : 0;
-}
-
-main {
-    display : block;
-}
-
-h1 {
-    font-size : 2em;
-    margin    : 0.67em 0;
-}
-
 hr {
     box-sizing : content-box;
     height     : 0;
@@ -275,10 +257,52 @@ abbr[title] {
     text-decoration : underline dotted;
 }
 
-b,
-strong {
-    font-weight : bolder;
+span {
+	font-weight: 400;
+    color: #0095f7;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: 0px;
+	font-size: 19pt;
+	margin-left: 2px
 }
+
+--------------------------------
+
+body {
+	font-family: 'Roboto', sans-serif;
+    margin : 0;
+}
+
+h2 {
+	font-size: 19pt;
+	font-weight: 700;
+}
+
+h3 {
+	font-size: 24px;
+	font-weight: 300;
+	margin-bottom: 15px;
+	margin-left: -10px;
+	margin-top: 25px
+}
+
+h5 {
+	font-size: 16px;
+}
+
+p {
+	font-size: 9pt;
+	font-weight: 400;
+	letter-spacing: .05em;
+	color: #53627C;
+}
+
+ul {
+	list-style-type: none;
+	padding-left: 0px;
+}
+
 
 code,
 kbd,
@@ -441,7 +465,7 @@ body {
 }
 
 body {
-    background-color            : var(--color-body);
+    background-color            : white;
     -webkit-overflow-scrolling  : touch;
     -webkit-text-size-adjust    : 100%;
     -webkit-tap-highlight-color : rgba(0, 0, 0, 0);
@@ -508,26 +532,21 @@ textarea {
 /* row 
  */
 .row {
-    width     : 92%;
-    max-width : var(--width-grid-max);
-    margin    : 0 auto;
-    display   : flex;
-    flex-flow : row wrap;
-}
-
-.row .row {
-    width        : auto;
-    max-width    : none;
-    margin-left  : calc(var(--gutter) * -1);
-    margin-right : calc(var(--gutter) * -1);
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  margin-right: -15px;
+  margin-left: -15px;
 }
 
 /* column
  */
 .column {
-    display : block;
-    flex    : 1 1 0%;
+    display : flex;
+    flex-direction    : column;
     padding : 0 var(--gutter);
+	justify-content: space-between
 }
 
 .collapse>.column,
@@ -1196,10 +1215,7 @@ textarea {
  * -------------------------------------------------------------------- */
 body {
     font-family : var(--font-1);
-    font-size   : var(--base-font-size);
     font-weight : 300;
-    line-height : var(--vspace-1);
-    color       : var(--color-text);
 }
 
 /* links
@@ -1226,19 +1242,16 @@ h1, h2, h3, h4, h5, h6,
 .h1, .h2, .h3, .h4, .h5, .h6 {
     font-family            : var(--font-1);
     font-weight            : 300;
-    color                  : var(--color-text-dark);
-    font-variant-ligatures : common-ligatures;
-    text-rendering         : optimizeLegibility;
 }
 
 h1, .h1 {
-    margin-top    : var(--vspace-2_5);
-    margin-bottom : var(--vspace-0_75);
+    margin-top    : var(--vspace-0_125);
+    margin-bottom : var(--vspace-0_125);
 }
 
 h2, .h2, h3, .h3, h4, .h4 {
-    margin-top    : var(--vspace-1_5);
-    margin-bottom : var(--vspace-0_5);
+    margin-top    : var(--vspace-0_125);
+    margin-bottom : var(--vspace-1);
 }
 
 h5, .h5, h6, .h6 {
@@ -1248,7 +1261,7 @@ h5, .h5, h6, .h6 {
 
 h1, .h1 {
     font-size      : var(--text-display-1);
-    line-height    : var(--vspace-2);
+    line-height    : var(--vspace-1_5);
     letter-spacing : -.01em;
 }
 
@@ -1265,7 +1278,7 @@ h2, .h2 {
 
 h3, .h3 {
     font-size   : var(--text-xl);
-    line-height : var(--vspace-1_25);
+    line-height : var(--vspace-1);
 }
 
 h4, .h4 {
@@ -1292,11 +1305,17 @@ h6, .h6 {
  */
 em,
 i,
-strong,
-b {
+strong {
     font-size   : inherit;
     line-height : inherit;
 }
+
+b {        
+		color: black;
+        font-family: 'Aharoni Bold V1';
+        font-weight: bold;
+        font-size: 47pt;
+		line-height: 1em;
 
 em,
 i {
@@ -1304,9 +1323,7 @@ i {
 }
 
 strong,
-b {
-    font-weight : 600;
-}
+
 
 small {
     font-size   : 75%;
@@ -1316,12 +1333,6 @@ small {
 
 /* blockquotes
  */
-blockquote {
-    margin      : 0 0 var(--vspace-1) 0;
-    padding     : var(--vspace-1) var(--vspace-1_5);
-    border-left : 2px solid var(--color-text-light);
-    position    : relative;
-}
 
 @media screen and (max-width: 400px) {
     blockquote {
@@ -1676,7 +1687,7 @@ form,
 img,
 .video-container,
 .ss-custom-select {
-    margin-bottom : var(--vspace-1);
+    margin-bottom : var(--vspace-0_125);
 }
 
 
@@ -3563,32 +3574,6 @@ canvas#neuro {
 
 
 
-/* ===================================================================
- * # WORKS
- *
- *
- * ------------------------------------------------------------------- */
-
-.s-works {
-    padding-top    : var(--vspace-5);
-    padding-bottom : var(--vspace-3_5);
-}
-
-.s-works .h1 {
-    margin-top : 0;
-}
-
-/* --------------------------------------------------------------------
- * ## works portfolio
- * -------------------------------------------------------------------- */
-.folio-list {
-    --item-min-height : var(--vspace-4_5);
-    list-style        : none;
-    margin-top        : var(--vspace-4);
-    margin-bottom     : var(--vspace-1);
-    margin-left       : 0;
-}
-
 .folio-list__item {
     margin-bottom : var(--vspace-1);
     position      : relative;
@@ -3738,190 +3723,6 @@ canvas#neuro {
     left      : 50%;
 }
 
-.folio-list__proj-link svg path {
-    fill : white;
-}
-
-.folio-list__proj-link:hover {
-    transform : scale(1.2);
-}
-
-/* ------------------------------------------------------------------- 
- * ## modal popup
- * ------------------------------------------------------------------- */
-.modal-popup {
-    max-width        : 680px;
-    background-color : white;
-    font-size        : calc(var(--text-size) * 0.9447);
-    line-height      : var(--vspace-0_875);
-    color            : rgba(0, 0, 0, 0.75);
-    overflow-y       : auto;
-    position         : relative;
-}
-
-.modal-popup img {
-    margin-bottom : var(--vspace-0_75);
-}
-
-.modal-popup h5 {
-    font-family   : var(--font-1);
-    font-size     : var(--text-size);
-    line-height   : var(--vspace-1);
-    font-weight   : 500;
-    margin-top    : 0;
-    margin-bottom : var(--vspace-0_25);
-    color         : black;
-}
-
-.modal-popup__desc {
-    padding : 0 var(--vspace-1_25) var(--vspace-0_25);
-}
-
-.modal-popup__cat {
-    list-style   : none;
-    margin-left  : 0;
-    font-size    : var(--text-sm);
-    line-height  : var(--vspace-0_5);
-    color        : rgba(0, 0, 0, 0.6);
-    padding-left : calc(0.875 * var(--space));
-    position     : relative;
-}
-
-.modal-popup__cat::before {
-    content             : "";
-    display             : block;
-    height              : calc(0.625 * var(--space));
-    width               : calc(0.625 * var(--space));
-    background-repeat   : no-repeat;
-    background-position : center;
-    background-size     : contain;
-    background-image    : url(../images/icons/icon-tag.svg);
-    position            : absolute;
-    left                : 0;
-    top                 : -0.15em;
-}
-
-.modal-popup__cat li {
-    display      : inline;
-    padding-left : 0;
-}
-
-.modal-popup__cat li::after {
-    content : ", ";
-}
-
-.modal-popup__cat li:last-child::after {
-    display : none;
-}
-
-.modal-popup__details {
-    background-color : rgba(0, 0, 0, 0.3);
-    font-size        : var(--text-xs);
-    line-height      : var(--vspace-1_25);
-    color            : white;
-    padding          : 0 1.2rem;
-    position         : absolute;
-    top              : var(--vspace-1);
-    left             : var(--vspace-1);
-}
-
-.modal-popup__details:focus,
-.modal-popup__details:hover {
-    background-color : var(--color-body);
-    color            : white;
-}
-
-/* ------------------------------------------------------------------- 
- * ## testimonials
- * ------------------------------------------------------------------- */
-.testimonials {
-    margin-top : var(--vspace-3);
-}
-
-.testimonials .swiper-container {
-    padding-bottom : var(--vspace-2_5);
-}
-
-.testimonials .swiper-container-horizontal .swiper-pagination-bullets .swiper-pagination-bullet {
-    margin : 0 9px;
-}
-
-.testimonials .swiper-pagination-bullet {
-    width      : 6px;
-    height     : 6px;
-    background : white;
-    opacity    : 0.4;
-}
-
-.testimonials .swiper-pagination-bullet-active {
-    background : var(--color-1);
-    opacity    : 1;
-}
-
-/* ------------------------------------------------------------------- 
- * ## testimonial slider 
- * ------------------------------------------------------------------- */
-.testimonial-slider__slide {
-    position : relative;
-}
-
-.testimonial-slider__slide:hover .testimonial-slider__avatar {
-    filter : none;
-}
-
-.testimonial-slider__slide:hover .testimonial-slider__cite strong {
-    color : var(--color-1);
-}
-
-.testimonial-slider__slide:hover .testimonial-slider__cite span {
-    color : white;
-}
-
-.testimonial-slider__author {
-    display       : inline-block;
-    min-height    : var(--vspace-2);
-    margin-bottom : var(--vspace-0_5);
-    padding-left  : var(--vspace-2_5);
-    position      : relative;
-}
-
-.testimonial-slider__avatar {
-    width         : var(--vspace-1_75);
-    height        : var(--vspace-1_75);
-    border-radius : 100%;
-    outline       : none;
-    position      : absolute;
-    top           : 0;
-    left          : 0;
-    filter        : grayscale(100%);
-    transition    : all 0.3s ease-in-out;
-}
-
-.testimonial-slider__cite {
-    display : block;
-}
-
-.testimonial-slider__cite strong,
-.testimonial-slider__cite span {
-    font-style : normal;
-    transition : all 0.3s ease-in-out;
-}
-
-.testimonial-slider__cite strong {
-    font-size   : calc(var(--text-size) * 0.8947);
-    font-weight : 400;
-    line-height : var(--vspace-0_75);
-    color       : white;
-}
-
-.testimonial-slider__cite span {
-    display     : block;
-    font-size   : calc(var(--text-size) * 0.7368);
-    font-weight : 300;
-    line-height : var(--vspace-0_5);
-    color       : var(--color-text-light);
-}
-
 /* ------------------------------------------------------------------- 
  * responsive:
  * works
@@ -4016,73 +3817,11 @@ canvas#neuro {
 
 
 
-/* ===================================================================
- * # CONTACT
- *
- *
- * ------------------------------------------------------------------- */
-
-.contact-top {
-    padding-top : var(--vspace-5);
-    border-top  : 1px solid var(--color-border);
-}
-
-.contact-top .h1 {
-    margin-top : 0;
-}
-
-.contact-bottom {
-    padding-bottom : var(--vspace-3);
-    margin-top     : var(--vspace-3);
-    border-bottom  : 1px solid var(--color-border);
-}
-
-.contact-bottom .text-pretitle {
-    margin-bottom : var(--vspace-0_125);
-}
-
-.contact-links,
-.contact-social {
-    font-size   : var(--text-md);
-    font-weight : 300;
-    line-height : var(--vspace-1_25);
-    color       : var(--color-text-light);
-}
-
-.contact-links a,
-.contact-social a {
-    color : var(--color-text-light);
-}
-
-.contact-links a:focus,
-.contact-links a:hover,
-.contact-social a:focus,
-.contact-social a:hover {
-    color : var(--color-1);
-}
-
-.contact-social {
-    list-style  : none;
-    margin-left : 0;
-}
-
 .contact-social li {
     display      : inline-block;
     padding-left : 0;
 }
 
-.contact-social li::after {
-    content : ",  ";
-}
-
-.contact-social li:last-child::after {
-    display : none;
-}
-
-.contact-btn {
-    margin-left  : auto;
-    margin-right : 5vw;
-}
 
 /* ------------------------------------------------------------------- 
  * responsive:
@@ -4103,102 +3842,6 @@ canvas#neuro {
 }
 
 
-
-/* ===================================================================
- * # FOOTER
- *
- *
- * ------------------------------------------------------------------- */
-
-.s-footer {
-    margin-top     : auto;
-    padding-top    : var(--vspace-1);
-    padding-bottom : var(--vspace-3);
-    color          : var(--color-text-light);
-}
-
-.s-footer>.row {
-    position : relative;
-}
-
-.s-footer a {
-    color : var(--color-text);
-}
-
-.s-footer a:focus,
-.s-footer a:hover {
-    color : white;
-}
-
-/* ------------------------------------------------------------------- 
- * ## copyright
- * ------------------------------------------------------------------- */
-.ss-copyright {
-    margin-top   : calc(var(--vspace-0_25) * -1);
-    margin-right : 5.2rem;
-    line-height  : var(--vspace-0_875);
-}
-
-.ss-copyright span {
-    font-size : var(--text-sm);
-    display   : inline-block;
-}
-
-.ss-copyright span::after {
-    content : "|";
-    display : inline-block;
-    padding : 0 .8rem 0 1rem;
-    color   : rgba(255, 255, 255, 0.1);
-}
-
-.ss-copyright span:last-child::after {
-    display : none;
-}
-
-/* ------------------------------------------------------------------- 
- * ## go top
- * ------------------------------------------------------------------- */
-.ss-go-top {
-    z-index  : 2;
-    position : absolute;
-    top      : calc(var(--vspace-1) * -1);
-    right    : var(--gutter);
-}
-
-.ss-go-top a {
-    display          : flex;
-    align-items      : center;
-    justify-content  : center;
-    text-decoration  : none;
-    border           : 0 none;
-    height           : calc(1.625 * var(--space));
-    width            : var(--vspace-1_5);
-    background-color : var(--color-body);
-    position         : relative;
-    border           : 1px solid var(--color-text);
-}
-
-.ss-go-top a:focus,
-.ss-go-top a:hover {
-    background-color : white;
-    border-color     : white;
-}
-
-.ss-go-top a:focus svg path,
-.ss-go-top a:hover svg path {
-    fill : black;
-}
-
-.ss-go-top svg {
-    height     : var(--vspace-0_5);
-    width      : var(--vspace-0_5);
-    transition : all 0.3s ease-in-out;
-}
-
-.ss-go-top svg path {
-    fill : white;
-}
-
 /* ------------------------------------------------------------------- 
  * responsive:
  * footer
@@ -4218,7 +3861,8 @@ canvas#neuro {
     }
 }
 
-@media screen and (max-width: 400px) {
+
+	@media screen and (max-width: 400px) {
     .ss-go-top {
         right : 6vw;
     }

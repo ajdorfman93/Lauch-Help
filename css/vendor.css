@@ -133,12 +133,6 @@ pre[class*="language-"] {
  *
  *   Released on: December 18, 2020
  * ------------------------------------------------------------------- */
-.container-header{
-	margin-left: 35px
-}
-.container {
-	margin-left: 20px
-}
 
 
 @font-face {
@@ -856,6 +850,15 @@ button.swiper-pagination-bullet {
 .border-left {
   border-left: 1px solid #8da2b5 !important;
 }
+
+.container-header{
+	margin-left: 35px !important
+}
+.container {
+	margin-left: 20px !important
+}
+
+
 .basicLightbox--visible .basicLightbox__placeholder {
     transform : scale(1);
     opacity   : 1;

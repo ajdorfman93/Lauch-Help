@@ -906,16 +906,7 @@ textarea {
  * ## mobile devices 
  * -------------------------------------------------------------------- */
 @media screen and (max-width: 600px) {
-    .row {
-        width         : 100%;
-        padding-left  : 6vw;
-        padding-right : 6vw;
-    }
 
-    .row .row {
-        padding-left  : 0;
-        padding-right : 0;
-    }
 
     .mob-1 {
         flex  : none;

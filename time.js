@@ -1,28 +1,32 @@
 class EntryTime {
     constructor(date) {
-      this.setDate(date); // Initialize the date
+        this.setDate(date); // Initialize the date
     }
-  
+
     // Method to update the date object
     setDate(date) {
-      this.date = new Date(date); // Update the date property
+        // Parse the date string as UTC to avoid timezone mismatches
+        const [year, month, day] = date.split('-').map(Number);
+        this.date = new Date(Date.UTC(year, month - 1, day)); // Month is zero-based
     }
-  
+
     // Getter to format date as YYYY-MM-DD
     get dateStr() {
-      return this.date.toISOString().split('T')[0];
+        return this.date.toISOString().split('T')[0];
     }
-  
+
     // Generate the Hebcal URL based on the current date
     htmlContent() {
-      return `https://www.hebcal.com/hebcal?cfg=json&maj=on&min=on&nx=on&start=${this.dateStr}&end=${this.dateStr}&ss=on&mf=on&d=on&c=on&geo=geoname&geonameid=5100280&M=on&s=on&leyning=off`;
+        return `https://www.hebcal.com/hebcal?cfg=json&maj=on&min=on&nx=on&start=${this.dateStr}&end=${this.dateStr}&ss=on&mf=on&d=on&c=on&geo=geoname&geonameid=5100280&M=on&s=on&leyning=off`;
     }
+
     // Getter to return the day of the week as a string
     get dayOfWeek() {
         const weekday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-        return weekday[this.date.getDay()]; // Map getDay() index to weekday names
-      }
+        return weekday[this.date.getUTCDay()]; // Use getUTCDay to ensure consistency
     }
+}
+
     
     class Times {
         constructor(htmlContent, dayRef) {

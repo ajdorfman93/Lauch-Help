@@ -4,61 +4,61 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // --- Integrated Zmanim for today's date ---
     function setDateToToday() {
-      const today = new Date();
-      const formattedDate = today.toISOString().split("T")[0];
-      datePicker.value = formattedDate;
-      fetchZmanim(formattedDate);
+        const today = new Date();
+        const formattedDate = today.toISOString().split("T")[0];
+        datePicker.value = formattedDate;
+        fetchZmanim(formattedDate);
     }
 
     async function fetchZmanim(date) {
-      const url = `https://www.hebcal.com/zmanim?cfg=json&geonameid=5100280&date=${date}`;
+        const url = `https://www.hebcal.com/zmanim?cfg=json&geonameid=5100280&date=${date}`;
 
-      try {
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(`Network response was not ok: ${response.statusText}`);
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+
+            const zmanimMapping = {
+                dawn: "dawn",
+                misheyakirMachmir: "misheyakirMachmir",
+                sunrise: "sunrise",
+                sofZmanShmaMGA: "sofZmanShmaMGA",
+                sofZmanShma: "sofZmanShma",
+                sofZmanTfilla: "sofZmanTfilla",
+                chatzot: "chatzot",
+                minchaGedola: "minchaGedola",
+                plagHaMincha: "plagHaMincha",
+                sunset: "sunset",
+                tzeit85deg: "tzeit85deg",
+                tzeit72min: "tzeit72min",
+            };
+
+            for (const [timeKey, elementId] of Object.entries(zmanimMapping)) {
+                const timeValue = data.times[timeKey];
+                if (timeValue && document.getElementById(elementId)) {
+                    document.getElementById(elementId).textContent = formatTime(timeValue);
+                }
+            }
+        } catch (error) {
+            console.error("Error fetching zmanim:", error);
         }
-
-        const data = await response.json();
-
-        const zmanimMapping = {
-          dawn: "dawn",
-          misheyakirMachmir: "misheyakirMachmir",
-          sunrise: "sunrise",
-          sofZmanShmaMGA: "sofZmanShmaMGA",
-          sofZmanShma: "sofZmanShma",
-          sofZmanTfilla: "sofZmanTfilla",
-          chatzot: "chatzot",
-          minchaGedola: "minchaGedola",
-          plagHaMincha: "plagHaMincha",
-          sunset: "sunset",
-          tzeit85deg: "tzeit85deg",
-          tzeit72min: "tzeit72min",
-        };
-
-        for (const [timeKey, elementId] of Object.entries(zmanimMapping)) {
-          const timeValue = data.times[timeKey];
-          if (timeValue && document.getElementById(elementId)) {
-            document.getElementById(elementId).textContent = formatTime(timeValue);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching zmanim:", error);
-      }
     }
 
     function formatTime(isoString) {
-      const date = new Date(isoString);
-      return date.toTimeString().slice(0, 5);
+        const date = new Date(isoString);
+        return date.toTimeString().slice(0, 5);
     }
 
     setDateToToday();
 
     datePicker.addEventListener("change", () => {
-      const selectedDate = datePicker.value;
-      if (selectedDate) {
-        fetchZmanim(selectedDate);
-      }
+        const selectedDate = datePicker.value;
+        if (selectedDate) {
+            fetchZmanim(selectedDate);
+        }
     });
     // --- End of integrated Zmanim code ---
 
@@ -216,6 +216,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
                 // Check for inclusions
                 return strCodeArray.some(code => {
+                    if (code === '#ERS') return true; // Handle later separately
+
                     const condition = conditionMapping[code];
                     if (!condition) {
                         // #ERS alone doesn't include, needs another inclusion code
@@ -226,12 +228,14 @@ document.addEventListener('DOMContentLoaded', async function () {
                         return condition(htmlContent);
                     } else if (Array.isArray(condition)) {
                         return condition.includes(entryTime.dayOfWeek);
+                    } else if (typeof condition === 'function') {
+                        return condition(htmlContent);
                     }
+
                     return false;
                 });
             });
 
-            // Handle #ERS logic after filtering
             await handleERSLogic(filteredRecords, entryTime);
 
             displayRecords(filteredRecords);
@@ -257,10 +261,10 @@ document.addEventListener('DOMContentLoaded', async function () {
         const chosenDate = entryTime.date;
         const dayOfWeek = chosenDate.getUTCDay(); // Sunday=0
         const lastSunday = new Date(chosenDate.getTime());
-        lastSunday.setDate(chosenDate.getDate() - dayOfWeek);
+        lastSunday.setUTCDate(chosenDate.getUTCDate() - dayOfWeek);
 
         const friday = new Date(lastSunday.getTime());
-        friday.setDate(lastSunday.getDate() + 5);
+        friday.setUTCDate(lastSunday.getUTCDate() + 5);
 
         const lastSundayStr = lastSunday.toISOString().split('T')[0];
         const fridayStr = friday.toISOString().split('T')[0];
@@ -273,18 +277,11 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
         const ersData = await ersResp.json();
 
-        if (!Array.isArray(ersData.items)) {
-            console.error("ERS Zmanim data does not contain an items array");
-            return;
-        }
-
         let earliestSunrise = null;
-        for (const dayItem of ersData.items) {
-            if (dayItem.times && dayItem.times.sunrise) {
-                const sunriseTime = new Date(dayItem.times.sunrise);
-                if (earliestSunrise === null || sunriseTime < earliestSunrise) {
-                    earliestSunrise = sunriseTime;
-                }
+        for (const [date, time] of Object.entries(ersData.times.sunrise || {})) {
+            const sunriseTime = new Date(time);
+            if (!earliestSunrise || sunriseTime < earliestSunrise) {
+                earliestSunrise = sunriseTime;
             }
         }
 
@@ -303,15 +300,15 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-    function applyTimeFormula(baseDate, formula) {
+    function applyTimeFormula(baseTime, formula) {
         const sign = formula.startsWith('-') ? -1 : 1;
         const cleanFormula = formula.replace('-', '');
         const [hh, mm] = cleanFormula.split(':').map(Number);
 
-        const dateCopy = new Date(baseDate.getTime());
-        // Adjust local time
-        dateCopy.setMinutes(dateCopy.getMinutes() + sign * (hh * 60 + mm));
-        return dateCopy.toTimeString().slice(0, 5);
+        const adjustedDate = new Date(baseTime.getTime());
+        adjustedDate.setMinutes(adjustedDate.getMinutes() + sign * (hh * 60 + mm));
+
+        return adjustedDate.toTimeString().slice(0, 5);
     }
 
     function displayRecords(records) {

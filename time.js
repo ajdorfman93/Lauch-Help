@@ -61,7 +61,7 @@ class EntryTime {
         'Sukkot Day 1': this.htmlContent.includes("סוכות א"),
         'Sukkot Day 2': this.htmlContent.includes("סוכות ב"),
         'Yom Kippur': this.htmlContent.includes("10 Tishrei"),
-        'Rosh Hashanah 1': this.htmlContent.includes("א׳ תשרי"),
+        'Rosh Hashanah 1': this.htmlContent.includes("1st of Tishrei"),
         'Rosh Hashanah 2': this.htmlContent.includes("ראש השנה ב׳"),
         'Sukkot CH’’M': this.htmlContent.includes("Sukkot") && this.htmlContent.includes("CH’’M"),
         'Simchat Torah': this.htmlContent.includes("Simchat Torah"),

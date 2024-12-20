@@ -20,7 +20,12 @@
   <div>  <h1>Filtered Prayer Times</h1>
     <label for="datePicker">Select a Date:</label>
     <input type="date" id="datePicker">
-    <button id="checkPrayerTimesButton">Check Prayer Times</button>
+    <button id="checkPrayerTimesButton">Check Prayer Times</button><div>
+      <button class="tefilah-button" data-tefilah="Maariv">Maariv</button>
+      <button class="tefilah-button" data-tefilah="Mincha">Mincha</button>
+      <button class="tefilah-button" data-tefilah="Shachris">Shachris</button>
+      <button class="tefilah-button" data-tefilah="Special">Special</button>
+  </div>
     <div id="prayerTimesOutput"></div>
   </div>
   <div class="container-header">

@@ -30,31 +30,32 @@ document.addEventListener('DOMContentLoaded', async function () {
             return weekday[this.date.getUTCDay()]; // Use getUTCDay to ensure consistency
         }
     }
+
     const conditionMapping = {
         // Day-based conditions
-        '#SF': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], 
-        '#ST': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'], 
-        '#AW': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], 
-        '#XMT': ['Tuesday', 'Wednesday', 'Friday'], 
-        '#MTT': ['Monday', 'Tuesday', 'Wednesday', 'Thursday'], 
-        '#MND': ['Monday'], 
-        '#TD': ['Tuesday'], 
-        '#WD': ['Wednesday'], 
-        '#TH': ['Thursday'], 
-        '#FR': ['Friday'], 
-        '#SUN': ['Sunday'], 
-        '#SHA': ['Saturday'], 
-    
+        '#SF': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+        '#ST': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'],
+        '#AW': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+        '#XMT': ['Tuesday', 'Wednesday', 'Friday'],
+        '#MTT': ['Monday', 'Tuesday', 'Wednesday', 'Thursday'],
+        '#MND': ['Monday'],
+        '#TD': ['Tuesday'],
+        '#WD': ['Wednesday'],
+        '#TH': ['Thursday'],
+        '#FR': ['Friday'],
+        '#SUN': ['Sunday'],
+        '#SHA': ['Saturday'],
+
         // Major Holidays
-        '#RH1': (htmlContent) => htmlContent.includes("1st of Tishrei"), 
-        '#RH2': (htmlContent) => htmlContent.includes("ראש השנה ב׳"), 
-        '#YK': (htmlContent) => htmlContent.includes("10 Tishrei"), 
-        '#SUK1': (htmlContent) => htmlContent.includes("סוכות א"), 
-        '#SUK2': (htmlContent) => htmlContent.includes("סוכות ב"), 
-        '#CHM-SUK': (htmlContent) => htmlContent.includes("Sukkot") && htmlContent.includes("CH’’M"), 
-        '#SHM-SUK': (htmlContent) => htmlContent.includes("Shmini Atzeret"), 
-        '#SIT': (htmlContent) => htmlContent.includes("Simchat Torah"), 
-    
+        '#RH1': (htmlContent) => htmlContent.includes("1st of Tishrei"),
+        '#RH2': (htmlContent) => htmlContent.includes("ראש השנה ב׳"),
+        '#YK': (htmlContent) => htmlContent.includes("10 Tishrei"),
+        '#SUK1': (htmlContent) => htmlContent.includes("סוכות א"),
+        '#SUK2': (htmlContent) => htmlContent.includes("סוכות ב"),
+        '#CHM-SUK': (htmlContent) => htmlContent.includes("Sukkot") && htmlContent.includes("CH’’M"),
+        '#SHM-SUK': (htmlContent) => htmlContent.includes("Shmini Atzeret"),
+        '#SIT': (htmlContent) => htmlContent.includes("Simchat Torah"),
+
         // Hanukkah
         '#CHAN': (htmlContent) => {
             const eightdays = [
@@ -118,15 +119,14 @@ document.addEventListener('DOMContentLoaded', async function () {
         '#FD': (htmlContent) => htmlContent.includes("fast") && !htmlContent.includes("major"),
         '#AMH': (htmlContent) => htmlContent.includes("major") && htmlContent.includes("yomtov")
     };
-    
 
-    let filteredRecords = []; // Will hold the filtered results after conditions are applied
+    let filteredRecords = []; // Holds filtered results
 
     async function loadAndDisplayPrayerTimes() {
         const entryTime = new EntryTime(datePicker.value);
 
         try {
-            // Fetch Hebcal data (JSON) first
+            // Fetch Hebcal data
             const hebcalResponse = await fetch(entryTime.hebcalUrl());
             if (!hebcalResponse.ok) {
                 throw new Error('Failed to fetch Hebcal data');
@@ -143,13 +143,13 @@ document.addEventListener('DOMContentLoaded', async function () {
             const data = await response.json();
             const records = data.records || [];
 
-            // Filter the records based on conditions
+            // Apply filtering logic
             filteredRecords = records.filter(record => {
                 const fields = record.fields;
-                const strCodeField = fields.strCode; // e.g., "['#SF']"
+                const strCodeField = fields.strCode;
                 let strCodeArray;
 
-                // Convert strCode from string to array if needed
+                // Convert strCode from string to array
                 if (typeof strCodeField === 'string') {
                     try {
                         strCodeArray = JSON.parse(strCodeField.replace(/'/g, '"'));
@@ -158,11 +158,17 @@ document.addEventListener('DOMContentLoaded', async function () {
                         strCodeArray = [strCodeField];
                     }
                 } else {
-                    // If strCode is already an array
                     strCodeArray = strCodeField;
                 }
 
-                // Check if any code in strCodeArray matches the current day or special conditions
+                // Check for exclusions first
+                const hasExclusion = strCodeArray.some(code => {
+                    const condition = conditionMapping[code];
+                    return typeof condition === 'function' && !condition(htmlContent);
+                });
+                if (hasExclusion) return false;
+
+                // Check for inclusions
                 return strCodeArray.some(code => {
                     const condition = conditionMapping[code];
                     if (!condition) return false;
@@ -220,11 +226,11 @@ document.addEventListener('DOMContentLoaded', async function () {
         checkPrayerTimesButton.addEventListener('click', loadAndDisplayPrayerTimes);
     }
 
-    // Add event listeners for the tefilah buttons
-    document.addEventListener('click', function(e) {
+    // Add event listeners for Tefilah buttons
+    document.addEventListener('click', function (e) {
         if (e.target.classList.contains('tefilah-button')) {
             const tefilahFilter = e.target.getAttribute('data-tefilah');
-            
+
             let filteredByTefilah;
             if (tefilahFilter === "Special") {
                 // "Special" could mean anything not Shachris/Mincha/Maariv

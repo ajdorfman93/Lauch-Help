@@ -17,3 +17,45 @@
     <script src="prayertimes.js"></script>
 </body>
 </html>
+const conditionMapping = {
+    '#SF': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+    '#ST': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'],
+    '#AW': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+    '#XMT': ['Tuesday', 'Wednesday', 'Friday'],
+    '#MTT': ['Monday', 'Tuesday', 'Wednesday', 'Thursday'],
+    '#MND': ['Monday'],
+    '#TD': ['Tuesday'],
+    '#WD': ['Wednesday'],
+    '#TH': ['Thursday'],
+    '#FR': ['Friday'],
+    '#SUN': ['Sunday'],
+    '#SHA': ['Saturday'],
+
+    '#RH1': (htmlContent) => htmlContent.includes("1st of Tishrei"),
+    '#RH2': (htmlContent) => htmlContent.includes("ראש השנה ב׳"),
+    '#YK': (htmlContent) => htmlContent.includes("10 Tishrei"),
+    '#SUK1': (htmlContent) => htmlContent.includes("סוכות א"),
+    '#SUK2': (htmlContent) => htmlContent.includes("סוכות ב"),
+    '#CHM-SUK': (htmlContent) => htmlContent.includes("Sukkot") && htmlContent.includes("CH’’M"),
+    '#SHM-SUK': (htmlContent) => htmlContent.includes("Shmini Atzeret"),
+    '#SIT': (htmlContent) => htmlContent.includes("Simchat Torah"),
+
+    '#CHAN': (htmlContent) => {
+        const eightdays = [
+            "25 Kislev", "26 Kislev", "27 Kislev", "28 Kislev", "29 Kislev", "30 Kislev", "1 Tevet", "2 Tevet"
+        ];
+        return eightdays.some(day => htmlContent.includes(day));
+    },
+    '#CHAN1': (htmlContent) => htmlContent.includes("25 Kislev"), 
+    '#CHAN2': (htmlContent) => htmlContent.includes("26 Kislev"),
+    '#CHAN3': (htmlContent) => htmlContent.includes("27 Kislev"),
+    '#CHAN4': (htmlContent) => htmlContent.includes("28 Kislev"),
+    '#CHAN5': (htmlContent) => htmlContent.includes("29 Kislev"),
+    '#CHAN6': (htmlContent) => htmlContent.includes("30 Kislev"),
+    '#CHAN7': (htmlContent) => htmlContent.includes("1 Tevet"),
+    '#CHAN8': (htmlContent) => htmlContent.includes("2 Tevet"),
+
+    '#RC': (htmlContent) => htmlContent.toLowerCase().includes("rosh chodesh"),
+    '#XRC': (htmlContent) => !htmlContent.toLowerCase().includes("rosh chodesh"),
+    '#ERS': null // Handled separately
+};

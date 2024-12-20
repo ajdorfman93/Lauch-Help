@@ -255,20 +255,20 @@ document.addEventListener('DOMContentLoaded', async function () {
             const codeArray = Array.isArray(codes) ? codes : JSON.parse(codes.replace(/'/g, '"'));
             return codeArray.includes('#ERS');
         });
-
+    
         if (ersRecords.length === 0) return;
-
+    
         const chosenDate = entryTime.date;
         const dayOfWeek = chosenDate.getUTCDay(); // Sunday=0
         const lastSunday = new Date(chosenDate.getTime());
         lastSunday.setUTCDate(chosenDate.getUTCDate() - dayOfWeek);
-
+    
         const friday = new Date(lastSunday.getTime());
         friday.setUTCDate(lastSunday.getUTCDate() + 5);
-
+    
         const lastSundayStr = lastSunday.toISOString().split('T')[0];
         const fridayStr = friday.toISOString().split('T')[0];
-
+    
         const ersUrl = `https://www.hebcal.com/zmanim?cfg=json&geonameid=5100280&start=${lastSundayStr}&end=${fridayStr}`;
         const ersResp = await fetch(ersUrl);
         if (!ersResp.ok) {
@@ -276,29 +276,39 @@ document.addEventListener('DOMContentLoaded', async function () {
             return;
         }
         const ersData = await ersResp.json();
-
+    
         let earliestSunrise = null;
+    
+        // Debugging: Log each sunrise time being processed
+        console.log("Processing sunrise times for date range:", lastSundayStr, "to", fridayStr);
         for (const [date, time] of Object.entries(ersData.times.sunrise || {})) {
             const sunriseTime = new Date(time);
+            console.log(`Date: ${date}, Sunrise: ${sunriseTime.toISOString()}`); // Log each sunrise
+    
             if (!earliestSunrise || sunriseTime < earliestSunrise) {
+                console.log(`New earliest sunrise found: ${sunriseTime.toISOString()}`); // Log updates
                 earliestSunrise = sunriseTime;
             }
         }
-
+    
         if (!earliestSunrise) {
             console.warn("No sunrise found in the Sunday to Friday range for ERS");
             return;
         }
-
+    
+        console.log(`Earliest sunrise for the week: ${earliestSunrise.toISOString()}`); // Final result
+    
         for (const rec of ersRecords) {
             const fields = rec.fields;
             const formula = fields.Time_for_formula;
             if (formula) {
                 const adjustedTime = applyTimeFormula(earliestSunrise, formula);
+                console.log(`Adjusted time for record (${rec.fields.StrShulName2}): ${adjustedTime}`); // Log adjusted time
                 fields.Time = adjustedTime;
             }
         }
     }
+    
 
     function applyTimeFormula(baseTime, formula) {
         const sign = formula.startsWith('-') ? -1 : 1;

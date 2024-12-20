@@ -2,37 +2,91 @@ document.addEventListener('DOMContentLoaded', async function () {
     const datePicker = document.getElementById('datePicker');
     const checkPrayerTimesButton = document.getElementById('checkPrayerTimesButton');
 
+    // --- Integrated Zmanim for today's date ---
+    function setDateToToday() {
+      const today = new Date();
+      const formattedDate = today.toISOString().split("T")[0];
+      datePicker.value = formattedDate;
+      fetchZmanim(formattedDate);
+    }
+
+    async function fetchZmanim(date) {
+      const url = `https://www.hebcal.com/zmanim?cfg=json&geonameid=5100280&date=${date}`;
+
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`Network response was not ok: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        const zmanimMapping = {
+          dawn: "dawn",
+          misheyakirMachmir: "misheyakirMachmir",
+          sunrise: "sunrise",
+          sofZmanShmaMGA: "sofZmanShmaMGA",
+          sofZmanShma: "sofZmanShma",
+          sofZmanTfilla: "sofZmanTfilla",
+          chatzot: "chatzot",
+          minchaGedola: "minchaGedola",
+          plagHaMincha: "plagHaMincha",
+          sunset: "sunset",
+          tzeit85deg: "tzeit85deg",
+          tzeit72min: "tzeit72min",
+        };
+
+        for (const [timeKey, elementId] of Object.entries(zmanimMapping)) {
+          const timeValue = data.times[timeKey];
+          if (timeValue && document.getElementById(elementId)) {
+            document.getElementById(elementId).textContent = formatTime(timeValue);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching zmanim:", error);
+      }
+    }
+
+    function formatTime(isoString) {
+      const date = new Date(isoString);
+      return date.toTimeString().slice(0, 5);
+    }
+
+    setDateToToday();
+
+    datePicker.addEventListener("change", () => {
+      const selectedDate = datePicker.value;
+      if (selectedDate) {
+        fetchZmanim(selectedDate);
+      }
+    });
+    // --- End of integrated Zmanim code ---
+
     class EntryTime {
         constructor(date) {
-            this.setDate(date); // Initialize the date
+            this.setDate(date);
         }
 
-        // Method to update the date object
         setDate(date) {
-            // Parse the date string as UTC to avoid timezone mismatches
             const [year, month, day] = date.split('-').map(Number);
-            this.date = new Date(Date.UTC(year, month - 1, day)); // Month is zero-based
+            this.date = new Date(Date.UTC(year, month - 1, day));
         }
 
-        // Getter to format date as YYYY-MM-DD
         get dateStr() {
             return this.date.toISOString().split('T')[0];
         }
 
-        // Generate the Hebcal URL based on the current date
         hebcalUrl() {
             return `https://www.hebcal.com/hebcal?cfg=json&maj=on&min=on&nx=on&start=${this.dateStr}&end=${this.dateStr}&ss=on&mf=on&d=on&c=on&geo=geoname&geonameid=5100280&M=on&s=on&leyning=off`;
         }
 
-        // Getter to return the day of the week as a string
         get dayOfWeek() {
             const weekday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-            return weekday[this.date.getUTCDay()]; // Use getUTCDay to ensure consistency
+            return weekday[this.date.getUTCDay()];
         }
     }
 
     const conditionMapping = {
-        // Day-based conditions
         '#SF': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
         '#ST': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'],
         '#AW': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
@@ -46,7 +100,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         '#SUN': ['Sunday'],
         '#SHA': ['Saturday'],
 
-        // Major Holidays
         '#RH1': (htmlContent) => htmlContent.includes("1st of Tishrei"),
         '#RH2': (htmlContent) => htmlContent.includes("ראש השנה ב׳"),
         '#YK': (htmlContent) => htmlContent.includes("10 Tishrei"),
@@ -56,7 +109,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         '#SHM-SUK': (htmlContent) => htmlContent.includes("Shmini Atzeret"),
         '#SIT': (htmlContent) => htmlContent.includes("Simchat Torah"),
 
-        // Hanukkah
         '#CHAN': (htmlContent) => {
             const eightdays = [
                 "25 Kislev", "26 Kislev", "27 Kislev", "28 Kislev", "29 Kislev", "30 Kislev", "1 Tevet", "2 Tevet"
@@ -71,8 +123,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         '#CHAN6': (htmlContent) => htmlContent.includes("30 Kislev"),
         '#CHAN7': (htmlContent) => htmlContent.includes("1 Tevet"),
         '#CHAN8': (htmlContent) => htmlContent.includes("2 Tevet"),
-    
-        // Bein HaZmanim
+
         '#BHZ': (htmlContent) => {
             const daysNisanToCheshvan = [
                 "1 Nisan", "2 Nisan", "3 Nisan", "4 Nisan", "5 Nisan", "6 Nisan", "7 Nisan", "8 Nisan", "9 Nisan",
@@ -91,36 +142,30 @@ document.addEventListener('DOMContentLoaded', async function () {
             ];
             return daysAv.some(day => htmlContent.includes(day));
         },
-    
-        // Erev Holidays
+
         '#EVY': (htmlContent) => htmlContent.includes("Erev Yom Kippur"),
         '#EVPS': (htmlContent) => htmlContent.includes("Erev Pesach"),
         '#EVSUK': (htmlContent) => htmlContent.includes("Erev Sukkot"),
         '#EVRH': (htmlContent) => htmlContent.includes("29 Elul"),
-    
-        // Rosh Chodesh
+
         '#RC': (htmlContent) => htmlContent.toLowerCase().includes("rosh chodesh"),
-    
-        // Excluding Rosh Chodesh
         '#XRC': (htmlContent) => !htmlContent.toLowerCase().includes("rosh chodesh"),
-    
-        // Excluding Minor Fast Days
         '#XFD': (htmlContent) => {
             const minorFastDays = [
                 "Fast of Esther",
                 "10 Tevet",
                 "17 Tammuz",
-                "9 Av" // Tisha B'Av
+                "9 Av"
             ];
             return !minorFastDays.some(fast => htmlContent.includes(fast));
         },
-    
-        // Minor Fasts, Major holidays (example placeholders)
+
         '#FD': (htmlContent) => htmlContent.includes("fast") && !htmlContent.includes("major"),
-        '#AMH': (htmlContent) => htmlContent.includes("major") && htmlContent.includes("yomtov")
+        '#AMH': (htmlContent) => htmlContent.includes("major") && htmlContent.includes("yomtov"),
+        '#ERS': null // Handled separately
     };
 
-    let filteredRecords = []; // Holds filtered results
+    let filteredRecords = [];
 
     async function loadAndDisplayPrayerTimes() {
         const entryTime = new EntryTime(datePicker.value);
@@ -143,13 +188,11 @@ document.addEventListener('DOMContentLoaded', async function () {
             const data = await response.json();
             const records = data.records || [];
 
-            // Apply filtering logic
             filteredRecords = records.filter(record => {
                 const fields = record.fields;
                 const strCodeField = fields.strCode;
                 let strCodeArray;
 
-                // Convert strCode from string to array
                 if (typeof strCodeField === 'string') {
                     try {
                         strCodeArray = JSON.parse(strCodeField.replace(/'/g, '"'));
@@ -164,26 +207,32 @@ document.addEventListener('DOMContentLoaded', async function () {
                 // Check for exclusions first
                 const hasExclusion = strCodeArray.some(code => {
                     const condition = conditionMapping[code];
-                    return typeof condition === 'function' && !condition(htmlContent);
+                    if (condition && typeof condition === 'function') {
+                        return !condition(htmlContent); 
+                    }
+                    return false;
                 });
                 if (hasExclusion) return false;
 
                 // Check for inclusions
                 return strCodeArray.some(code => {
                     const condition = conditionMapping[code];
-                    if (!condition) return false;
-
+                    if (!condition) {
+                        // #ERS alone doesn't include, needs another inclusion code
+                        if (code === '#ERS') return false;
+                        return false;
+                    }
                     if (typeof condition === 'function') {
-                        // Condition is a function that uses htmlContent
                         return condition(htmlContent);
                     } else if (Array.isArray(condition)) {
-                        // Condition is an array of valid days
                         return condition.includes(entryTime.dayOfWeek);
                     }
-
                     return false;
                 });
             });
+
+            // Handle #ERS logic after filtering
+            await handleERSLogic(filteredRecords, entryTime);
 
             displayRecords(filteredRecords);
 
@@ -194,6 +243,75 @@ document.addEventListener('DOMContentLoaded', async function () {
                 container.innerHTML = `<p>Error: ${error.message}</p>`;
             }
         }
+    }
+
+    async function handleERSLogic(records, entryTime) {
+        const ersRecords = records.filter(rec => {
+            const codes = rec.fields.strCode;
+            const codeArray = Array.isArray(codes) ? codes : JSON.parse(codes.replace(/'/g, '"'));
+            return codeArray.includes('#ERS');
+        });
+
+        if (ersRecords.length === 0) return;
+
+        const chosenDate = entryTime.date;
+        const dayOfWeek = chosenDate.getUTCDay(); // Sunday=0
+        const lastSunday = new Date(chosenDate.getTime());
+        lastSunday.setDate(chosenDate.getDate() - dayOfWeek);
+
+        const friday = new Date(lastSunday.getTime());
+        friday.setDate(lastSunday.getDate() + 5);
+
+        const lastSundayStr = lastSunday.toISOString().split('T')[0];
+        const fridayStr = friday.toISOString().split('T')[0];
+
+        const ersUrl = `https://www.hebcal.com/zmanim?cfg=json&geonameid=5100280&start=${lastSundayStr}&end=${fridayStr}`;
+        const ersResp = await fetch(ersUrl);
+        if (!ersResp.ok) {
+            console.error('Failed to fetch ERS Zmanim data');
+            return;
+        }
+        const ersData = await ersResp.json();
+
+        if (!Array.isArray(ersData.items)) {
+            console.error("ERS Zmanim data does not contain an items array");
+            return;
+        }
+
+        let earliestSunrise = null;
+        for (const dayItem of ersData.items) {
+            if (dayItem.times && dayItem.times.sunrise) {
+                const sunriseTime = new Date(dayItem.times.sunrise);
+                if (earliestSunrise === null || sunriseTime < earliestSunrise) {
+                    earliestSunrise = sunriseTime;
+                }
+            }
+        }
+
+        if (!earliestSunrise) {
+            console.warn("No sunrise found in the Sunday to Friday range for ERS");
+            return;
+        }
+
+        for (const rec of ersRecords) {
+            const fields = rec.fields;
+            const formula = fields.Time_for_formula;
+            if (formula) {
+                const adjustedTime = applyTimeFormula(earliestSunrise, formula);
+                fields.Time = adjustedTime;
+            }
+        }
+    }
+
+    function applyTimeFormula(baseDate, formula) {
+        const sign = formula.startsWith('-') ? -1 : 1;
+        const cleanFormula = formula.replace('-', '');
+        const [hh, mm] = cleanFormula.split(':').map(Number);
+
+        const dateCopy = new Date(baseDate.getTime());
+        // Adjust local time
+        dateCopy.setMinutes(dateCopy.getMinutes() + sign * (hh * 60 + mm));
+        return dateCopy.toTimeString().slice(0, 5);
     }
 
     function displayRecords(records) {
@@ -226,16 +344,12 @@ document.addEventListener('DOMContentLoaded', async function () {
         checkPrayerTimesButton.addEventListener('click', loadAndDisplayPrayerTimes);
     }
 
-    // Add event listeners for Tefilah buttons
     document.addEventListener('click', function (e) {
         if (e.target.classList.contains('tefilah-button')) {
             const tefilahFilter = e.target.getAttribute('data-tefilah');
 
             let filteredByTefilah;
             if (tefilahFilter === "Special") {
-                // "Special" could mean anything not Shachris/Mincha/Maariv
-                // Define your own logic here.
-                // For example, filter out Shachris, Mincha, Maariv:
                 filteredByTefilah = filteredRecords.filter(record => {
                     const t = record.fields.Tefilah_Tefilahs || '';
                     return t !== 'Shachris' && t !== 'Mincha' && t !== 'Maariv';

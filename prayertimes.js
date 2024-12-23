@@ -692,29 +692,65 @@ document.addEventListener('DOMContentLoaded', async function () {
         container.innerHTML = tableHtml;
     }
 
-    if (checkPrayerTimesButton) {
-        checkPrayerTimesButton.addEventListener('click', loadAndDisplayPrayerTimes);
-    }
 
-    // Tefilah Buttons for quick filtering
-    document.addEventListener('click', function (e) {
-        if (e.target.classList.contains('tefilah-button')) {
-            const tefilahFilter = e.target.getAttribute('data-tefilah');
-
-            let filteredByTefilah;
-            if (tefilahFilter === "Special") {
-                // Show only records that are not Shachris/Mincha/Maariv
-                filteredByTefilah = filteredRecords.filter(record => {
-                    const t = record.fields.Tefilah_Tefilahs || '';
-                    return t !== 'Shachris' && t !== 'Mincha' && t !== 'Maariv';
-                });
-            } else {
-                filteredByTefilah = filteredRecords.filter(record => {
-                    const t = record.fields.Tefilah_Tefilahs || '';
-                    return t.toLowerCase() === tefilahFilter.toLowerCase();
-                });
-            }
-            displayRecords(filteredByTefilah);
+        // ----------------------------------------
+        // 8) Button listeners
+        // ----------------------------------------
+        if (checkPrayerTimesButton) {
+            checkPrayerTimesButton.addEventListener('click', loadAndDisplayPrayerTimes);
         }
+
+        // Parse bracketed Tefilah strings, e.g. "['Shachris']"
+        function parseTefilahArray(raw) {
+            if (!raw) return [];
+            if (Array.isArray(raw)) return raw;
+            if (typeof raw === 'string') {
+                try {
+                    return JSON.parse(raw.replace(/'/g, '"'));
+                } catch {
+                    return [raw.trim()];
+                }
+            }
+            return [raw];
+        }
+
+        // Tefilah Buttons with if/else if for Shachris, Mincha, Maariv, Special, ShowAll
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('tefilah-button')) {
+                const tefilahFilter = e.target.getAttribute('data-tefilah');
+
+                let filteredByTefilah;
+                if (tefilahFilter === 'Shachris') {
+                    filteredByTefilah = filteredRecords.filter(record => {
+                        const arr = parseTefilahArray(record.fields.Tefilah_Tefilahs);
+                        return arr.some(t => t.toLowerCase() === 'shachris');
+                    });
+                } else if (tefilahFilter === 'Mincha') {
+                    filteredByTefilah = filteredRecords.filter(record => {
+                        const arr = parseTefilahArray(record.fields.Tefilah_Tefilahs);
+                        return arr.some(t => t.toLowerCase() === 'mincha');
+                    });
+                } else if (tefilahFilter === 'Maariv') {
+                    filteredByTefilah = filteredRecords.filter(record => {
+                        const arr = parseTefilahArray(record.fields.Tefilah_Tefilahs);
+                        return arr.some(t => t.toLowerCase() === 'maariv');
+                    });
+                } else if (tefilahFilter === 'Special') {
+                    // Exclude shachris, mincha, maariv
+                    filteredByTefilah = filteredRecords.filter(record => {
+                        const arr = parseTefilahArray(record.fields.Tefilah_Tefilahs);
+                        // keep record if it does NOT have any of shachris, mincha, maariv
+                        return !arr.some(t => {
+                            const lower = t.toLowerCase();
+                            return ['shachris','mincha','maariv'].includes(lower);
+                        });
+                    });
+                } else {
+                    // ShowAll or unrecognized => show all
+                    filteredByTefilah = filteredRecords.slice();
+                }
+
+                displayRecords(filteredByTefilah);
+            }
+        });
     });
-});

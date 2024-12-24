@@ -19,7 +19,6 @@
         "Cut_off_Time": "00:00",
         "Note": null,
         "StrShulName": "Testing",
-        "Data": "Neighborhood: ; Shul: Testing; Address: , ,  ; Nusach: ; BusorShul: ; Tefilah: ['Shachris']; Date-Codes:['#RC']",
         "Tefilah_Tefilahs": "['Shachris']",
         "strCode": "['#RC']",
         "Condition": [
@@ -27,13 +26,17 @@
           "Rosh Chodesh (New Month)"
         ],
         "strZman_Start_Time": "sunrise",
-        "strZman_Cutoff_Time": "minchaGedola"
+        "strZman_Cutoff_Time": "minchaGedola",
+        "Address": "347 Coles Way",
+        "City": "Lakewood",
+        "State": "NJ",
+        "Zip_Code": "08701"
       }
     },
     {
       "id": 7,
       "fields": {
-        "Shul_Name": 273,
+        "Shul_Name": 274,
         "Code": [
           "L",
           64],
@@ -48,8 +51,7 @@
         "Zman_Start_Adjustment": "00:00",
         "Cut_off_Time": "00:00",
         "Note": null,
-        "StrShulName": "Testing",
-        "Data": "Neighborhood: ; Shul: Testing; Address: , ,  ; Nusach: ; BusorShul: ; Tefilah: ['Shachris']; Date-Codes:['#ERS']",
+        "StrShulName": "Testing1",
         "Tefilah_Tefilahs": "['Shachris']",
         "strCode": "['#ERS']",
         "Condition": [
@@ -57,13 +59,17 @@
           "Earliest (Zman Start Time) Of The Week + (Time For Formula)"
         ],
         "strZman_Start_Time": "chatzot",
-        "strZman_Cutoff_Time": "minchaKetana"
+        "strZman_Cutoff_Time": "minchaKetana",
+        "Address": "44 Coles Way",
+        "City": "Lakewood",
+        "State": "NJ",
+        "Zip_Code": "08701"
       }
     },
     {
       "id": 8,
       "fields": {
-        "Shul_Name": 273,
+        "Shul_Name": 276,
         "Code": [
           "L",
           71],
@@ -78,8 +84,7 @@
         "Zman_Start_Adjustment": "00:00",
         "Cut_off_Time": "10:00 AM",
         "Note": null,
-        "StrShulName": "Testing",
-        "Data": "Neighborhood: ; Shul: Testing; Address: , ,  ; Nusach: ; BusorShul: ; Tefilah: ['Shachris']; Date-Codes:['#RET']",
+        "StrShulName": "Testing3",
         "Tefilah_Tefilahs": "['Shachris']",
         "strCode": "['#RET']",
         "Condition": [
@@ -87,7 +92,11 @@
           "Repeat Every (Time For Formula) Till (Cut Off Time); if #UCT is applied or (Zman Cutoff Time) + (Zman Cutoff Adjustment); if #UST is applied, starting time is set at (Zman Start Time) + (Zman Start Adjustment)"
         ],
         "strZman_Start_Time": "chatzotNight",
-        "strZman_Cutoff_Time": "chatzotNight"
+        "strZman_Cutoff_Time": "chatzotNight",
+        "Address": "269 John St",
+        "City": "Lakewood",
+        "State": "NJ",
+        "Zip_Code": "08701"
       }
     },
     {
@@ -109,7 +118,6 @@
         "Cut_off_Time": "00:00",
         "Note": null,
         "StrShulName": "Testing",
-        "Data": "Neighborhood: ; Shul: Testing; Address: , ,  ; Nusach: ; BusorShul: ; Tefilah: ['Maariv']; Date-Codes:['#RSE']",
         "Tefilah_Tefilahs": "['Maariv']",
         "strCode": "['#RSE']",
         "Condition": [
@@ -117,13 +125,17 @@
           "Rounded (To Nearest 5 Min) Earliest (Zman Start Time) Of Week + (Time For Formula)"
         ],
         "strZman_Start_Time": "chatzot",
-        "strZman_Cutoff_Time": "minchaGedola"
+        "strZman_Cutoff_Time": "minchaGedola",
+        "Address": "347 Coles Way",
+        "City": "Lakewood",
+        "State": "NJ",
+        "Zip_Code": "08701"
       }
     },
     {
       "id": 12,
       "fields": {
-        "Shul_Name": 273,
+        "Shul_Name": 275,
         "Code": [
           "L",
           74],
@@ -138,8 +150,7 @@
         "Zman_Start_Adjustment": "00:00",
         "Cut_off_Time": "00:00",
         "Note": null,
-        "StrShulName": "Testing",
-        "Data": "Neighborhood: ; Shul: Testing; Address: , ,  ; Nusach: ; BusorShul: ; Tefilah: ['Shachris']; Date-Codes:['#UCT']",
+        "StrShulName": "Testing2",
         "Tefilah_Tefilahs": "['Shachris']",
         "strCode": "['#UCT']",
         "Condition": [
@@ -147,13 +158,17 @@
           "Record excluded if (Zman Cutoff Time) + (Zman Cutoff Adjustment) is before or equal to (Time)"
         ],
         "strZman_Start_Time": "dawn",
-        "strZman_Cutoff_Time": "dawn"
+        "strZman_Cutoff_Time": "dawn",
+        "Address": "9 Sharon Ct",
+        "City": "Lakewood",
+        "State": "NJ",
+        "Zip_Code": "08701"
       }
     },
     {
       "id": 13,
       "fields": {
-        "Shul_Name": 273,
+        "Shul_Name": 274,
         "Code": [
           "L",
           75],
@@ -168,8 +183,7 @@
         "Zman_Start_Adjustment": "01:00",
         "Cut_off_Time": "10:00 PM",
         "Note": null,
-        "StrShulName": "Testing",
-        "Data": "Neighborhood: ; Shul: Testing; Address: , ,  ; Nusach: ; BusorShul: ; Tefilah: ['Mincha']; Date-Codes:['#CUT']",
+        "StrShulName": "Testing1",
         "Tefilah_Tefilahs": "['Mincha']",
         "strCode": "['#CUT']",
         "Condition": [
@@ -177,13 +191,17 @@
           "Record excluded if (Cutoff Time) is before or equal to (Zman Start Time) + (Zman Start Adjustment)"
         ],
         "strZman_Start_Time": "sunrise",
-        "strZman_Cutoff_Time": "minchaGedola"
+        "strZman_Cutoff_Time": "minchaGedola",
+        "Address": "44 Coles Way",
+        "City": "Lakewood",
+        "State": "NJ",
+        "Zip_Code": "08701"
       }
     },
     {
       "id": 14,
       "fields": {
-        "Shul_Name": 273,
+        "Shul_Name": 276,
         "Code": [
           "L",
           76],
@@ -198,8 +216,7 @@
         "Zman_Start_Adjustment": "01:00",
         "Cut_off_Time": "00:00",
         "Note": null,
-        "StrShulName": "Testing",
-        "Data": "Neighborhood: ; Shul: Testing; Address: , ,  ; Nusach: ; BusorShul: ; Tefilah: ['Shachris']; Date-Codes:['#UST']",
+        "StrShulName": "Testing3",
         "Tefilah_Tefilahs": "['Shachris']",
         "strCode": "['#UST']",
         "Condition": [
@@ -207,7 +224,11 @@
           "Use (Zman Start Time) + (Time for formula)"
         ],
         "strZman_Start_Time": "sunrise",
-        "strZman_Cutoff_Time": "chatzotNight"
+        "strZman_Cutoff_Time": "chatzotNight",
+        "Address": "269 John St",
+        "City": "Lakewood",
+        "State": "NJ",
+        "Zip_Code": "08701"
       }
     }
   ]

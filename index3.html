@@ -1,0 +1,49 @@
+<html>
+<head>
+<title>Eg. Google Maps Marker using External JSON</title>
+<style type="text/css">
+html { height: 100% }
+body { height: 100%; margin: 0; padding: 0 }
+#map_canvas { height: 100% }
+</style>
+<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script> 
+<script type="text/javascript" src = "http://maps.google.com/maps/api/js?sensor=false">
+
+</script>
+<script type="text/javascript">
+function initialize() {
+
+var mapOptions = {
+center: new google.maps.LatLng(44.5403, -78.5463),
+zoom: 5,
+mapTypeId: google.maps.MapTypeId.ROADMAP
+};
+
+var infoWindow = new google.maps.InfoWindow();
+var map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+
+  $.getJSON('map_points.json', function(data) { 
+            $.each( data.points, function(i, value) {
+
+                var myLatlng = new google.maps.LatLng(value.lat, value.lon);
+                alert(myLatlng);
+                var marker = new google.maps.Marker({
+                position: myLatlng,
+                map: map,
+                title: "text "+value.lon
+                });
+
+            });
+});
+
+
+}
+
+</script>
+</head>
+<body onload="initialize()">
+<form id="form1" runat="server">
+<div id="map_canvas" style="width: 500px; height: 400px"></div>
+</form>
+</body>
+</html>

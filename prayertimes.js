@@ -664,34 +664,31 @@ document.addEventListener('DOMContentLoaded', async function () {
         hours = hours % 12 || 12;
         return `${hours}:${String(minutes).padStart(2, '0')} ${suffix}`;
     }
+// Finally, displayRecords in JSON
+function displayRecords(records) {
+    const container = document.getElementById('prayerTimesOutput');
+    if (!container) return;
 
-    // Finally, displayRecords in a table
-    function displayRecords(records) {
-        const container = document.getElementById('prayerTimesOutput');
-        if (!container) return;
-
-        if (records.length === 0) {
-            container.innerHTML = `<p>No matching prayer times found.</p>`;
-            return;
-        }
-
-        let tableHtml = '<table><tr><th>Shul</th><th>Tefilah</th><th>Time</th><th>Data</th><th>strCode</th></tr>';
-        for (const record of records) {
-            const fields = record.fields;
-            tableHtml += `
-                <tr>
-                    <td>${fields.StrShulName2 || fields.StrShulName || ''}</td>
-                    <td>${fields.Tefilah_Tefilahs || ''}</td>
-                    <td>${fields.Time || ''}</td>
-                    <td>${fields.Data || ''}</td>
-                    <td>${fields.strCode || ''}</td>
-                </tr>
-            `;
-        }
-        tableHtml += '</table>';
-        container.innerHTML = tableHtml;
+    if (records.length === 0) {
+        container.innerHTML = `<p>No matching prayer times found.</p>`;
+        return;
     }
 
+    // Convert records to JSON structure
+    const jsonOutput = records.map(record => {
+        const fields = record.fields;
+        return {
+            Shul: fields.StrShulName2 || fields.StrShulName || '',
+            Tefilah: fields.Tefilah_Tefilahs || '',
+            Time: fields.Time || '',
+            Data: `${fields.Address || ''}, ${fields.City || ''}, ${fields.State || ''}`.trim(),
+            strCode: fields.strCode || ''
+        };
+    });
+
+    // Pretty print JSON and display
+    container.innerHTML = `<pre>${JSON.stringify(jsonOutput, null, 2)}</pre>`;
+}
 
         // ----------------------------------------
         // 8) Button listeners

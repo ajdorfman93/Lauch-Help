@@ -14,10 +14,69 @@
     <script src="time.js"></script>
     <script src="zmanim.js" defer></script>
     <script src="prayertimes.js" defer></script>
-	  
+    <script type="module" src="autocomp.js"></script>
   </head> 
      <h1>Jewish Calendar Event Checker</h1>
-  <div>  <h1>Filtered Prayer Times</h1>
+  <div>  
+    <h1>Dynamic Iframe Map with Autocomplete</h1>
+
+    <div>
+      <form id="address-form" action="" method="get" autocomplete="off">
+        <label class="full-field">
+          <span class="form-label">Search From</span>
+          <input
+            id="ship-address"
+            name="ship-address"
+            required
+            autocomplete="off"
+          />
+        </label>
+
+        <label class="full-field">
+          <span class="form-label">City</span>
+          <input id="locality" name="locality" required />
+        </label>
+
+        <label class="slim-field-start">
+          <span class="form-label">State</span>
+          <input id="state" name="state" required />
+        </label>
+
+        <label class="slim-field-end" for="postal_code">
+          <span class="form-label">Zip Code</span>
+          <input id="postcode" name="postcode" required />
+        </label>
+
+        <!-- Button to trigger the map update -->
+        <button type="button" class="my-button">Save address</button>
+      </form>
+    </div>
+
+    <!-- The iframe that will show the dynamic map. 
+         Add an id so we can manipulate its src in JavaScript. -->
+         <div id="map"><iframe
+      id="mapIframe"
+      width="450"
+      height="250"
+      frameborder="0"
+      style="border:0"
+      referrerpolicy="no-referrer-when-downgrade"
+      allowfullscreen
+      src="https://www.google.com/maps/embed/v1/place?key=AIzaSyBOtVjKr3D0vZmwg1QlxCy6SR4rVQenaPU&q=Lakewood+Township"
+    ></iframe></div>
+
+    <!-- 
+      The `defer` attribute causes the script to execute after the full HTML
+      document has been parsed. For non-blocking uses, avoiding race conditions,
+      and consistent behavior across browsers, consider loading using Promises. See
+      https://developers.google.com/maps/documentation/javascript/load-maps-js-api
+      for more information.
+      -->
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBOtVjKr3D0vZmwg1QlxCy6SR4rVQenaPU&callback=initAutocomplete&libraries=places&v=weekly"
+      defer
+    ></script>
+    <h1>Filtered Prayer Times</h1>
     <label for="datePicker">Select a Date:</label>
     <input type="date" id="datePicker">
     <button id="checkPrayerTimesButton">Check Prayer Times</button><div>

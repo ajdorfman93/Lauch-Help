@@ -10,7 +10,7 @@ let autocomplete;
 let address1Field;
 let postalField;
 
-function initAutocomplete() {
+async function initAutocomplete() {
   address1Field = document.querySelector("#ship-address");
   postalField = document.querySelector("#postcode");
   // Create the autocomplete object, restricting the search predictions to
@@ -75,10 +75,6 @@ function fillInAddress() {
 
   address1Field.value = address1;
   postalField.value = postcode;
-  // After filling the form with address components from the Autocomplete
-  // prediction, set cursor focus on the second address line to encourage
-  // entry of subpremise information such as apartment, unit, or floor number.
-  address2Field.focus();
 }
 
 /****************************************************
@@ -115,5 +111,67 @@ document.addEventListener("DOMContentLoaded", () => {
       mapIframe.src = newSrc;
     });
   });
+
+// Single API key for Geocoding + Maps
+const GEOCODE_API_KEY = "AIzaSyBOtVjKr3D0vZmwg1QlxCy6SR4rVQenaPU";
+
+// Geocode a single address => returns { lat, lng } or null
+async function geocodeAddress(address) {
+  if (!address) return null;
+
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+    address
+  )}&key=${GEOCODE_API_KEY}`;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.status === "OK" && data.results.length > 0) {
+      const location = data.results[0].geometry.location;
+      return {
+        lat: location.lat,
+        lng: location.lng,
+      };
+    } else {
+      console.error("Geocode API error:", data.status, data.error_message);
+      return null;
+    }
+  } catch (error) {
+    console.error("Fetch error:", error);
+    return null;
+  }
+}
+
+// Update iframe map based on address
+async function updateIframeMap(address) {
+  const geocodeResult = await geocodeAddress(address);
+
+  if (geocodeResult) {
+    const { lat, lng } = geocodeResult;
+
+    // Update the iframe src with new location
+    const mapIframe = document.getElementById("mapIframe");
+    mapIframe.src = `https://www.google.com/maps/embed/v1/place?key=${GEOCODE_API_KEY}&q=${lat},${lng}`;
+    console.log(`Map updated to lat: ${lat}, lng: ${lng}`);
+  } else {
+    alert("Failed to geocode the address. Please check the address and try again.");
+  }
+}
+
+// Usage example with form submission
+document.addEventListener("DOMContentLoaded", () => {
+  const addressForm = document.querySelector("#address-form");
+  addressForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const address = document.querySelector("#ship-address").value.trim();
+    if (address) {
+      updateIframeMap(address);
+    } else {
+      alert("Please enter an address.");
+    }
+  });
+});
 
 window.initAutocomplete = initAutocomplete;

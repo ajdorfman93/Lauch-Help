@@ -1,66 +1,9 @@
 document.addEventListener('DOMContentLoaded', async function () {
     const datePicker = document.getElementById('datePicker');
     const checkPrayerTimesButton = document.getElementById('checkPrayerTimesButton');
+    let currentTefilahFilter = null;
 
-    // --- Integrated Zmanim for today's date ---
-    function setDateToToday() {
-        const today = new Date();
-        const formattedDate = today.toISOString().split("T")[0];
-        datePicker.value = formattedDate;
-        fetchZmanim(formattedDate);
-    }
-
-    async function fetchZmanim(date) {
-        const url = `https://www.hebcal.com/zmanim?cfg=json&geonameid=5100280&date=${date}`;
-        try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`Network response was not ok: ${response.statusText}`);
-            }
-            const data = await response.json();
-
-            // Map of Zmanim to element IDs
-            const zmanimMapping = {
-                dawn: "dawn",
-                misheyakirMachmir: "misheyakirMachmir",
-                sunrise: "sunrise",
-                sofZmanShmaMGA: "sofZmanShmaMGA",
-                sofZmanShma: "sofZmanShma",
-                sofZmanTfilla: "sofZmanTfilla",
-                chatzot: "chatzot",
-                minchaGedola: "minchaGedola",
-                plagHaMincha: "plagHaMincha",
-                sunset: "sunset",
-                tzeit85deg: "tzeit85deg",
-                tzeit72min: "tzeit72min",
-            };
-
-            for (const [timeKey, elementId] of Object.entries(zmanimMapping)) {
-                const timeValue = data.times[timeKey];
-                if (timeValue && document.getElementById(elementId)) {
-                    document.getElementById(elementId).textContent = formatTime(timeValue);
-                }
-            }
-        } catch (error) {
-            console.error("Error fetching zmanim:", error);
-        }
-    }
-
-    function formatTime(isoString) {
-        const date = new Date(isoString);
-        return date.toTimeString().slice(0, 5);
-    }
-
-    setDateToToday();
-
-    datePicker.addEventListener("change", () => {
-        const selectedDate = datePicker.value;
-        if (selectedDate) {
-            fetchZmanim(selectedDate);
-        }
-    });
-    // --- End of integrated Zmanim code ---
-
+    
     // Class to handle the chosen date
     class EntryTime {
         constructor(date) {
@@ -261,7 +204,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             await handleCUTLogic(filteredRecords, entryTime);
 
             // 5) Display the resulting records
-            displayRecords(filteredRecords);
+            console.log("Prayer times loaded. Awaiting tefilah filter.");
 
         } catch (error) {
             console.error('Error fetching prayer times:', error);
@@ -664,31 +607,37 @@ document.addEventListener('DOMContentLoaded', async function () {
         hours = hours % 12 || 12;
         return `${hours}:${String(minutes).padStart(2, '0')} ${suffix}`;
     }
-// Finally, displayRecords in JSON
-function displayRecords(records) {
-    const container = document.getElementById('prayerTimesOutput');
-    if (!container) return;
-
-    if (records.length === 0) {
-        container.innerHTML = `<p>No matching prayer times found.</p>`;
-        return;
+    function displayRecords(records) {
+        const container = document.getElementById('prayerTimesOutput');
+        if (!container) return;
+    
+        // Ensure records are only displayed if they result from a tefilah filter
+        if (!currentTefilahFilter) {
+            console.warn("No tefilah filter applied. Skipping display.");
+            return; // Do not display anything until a filter is applied
+        }
+    
+        if (records.length === 0) {
+            container.innerHTML = `<p>No matching prayer times found.</p>`;
+            return;
+        }
+    
+        // Convert records to JSON structure
+        const jsonOutput = records.map(record => {
+            const fields = record.fields;
+            return {
+                Shul: fields.StrShulName2 || fields.StrShulName || '',
+                Tefilah: fields.Tefilah_Tefilahs || '',
+                Time: fields.Time || '',
+                Data: `${fields.Address || ''}, ${fields.City || ''}, ${fields.State || ''}`.trim(),
+                strCode: fields.strCode || ''
+            };
+        });
+    
+        // Pretty print JSON and display
+        container.innerHTML = `<pre>${JSON.stringify(jsonOutput, null, 2)}</pre>`;
     }
-
-    // Convert records to JSON structure
-    const jsonOutput = records.map(record => {
-        const fields = record.fields;
-        return {
-            Shul: fields.StrShulName2 || fields.StrShulName || '',
-            Tefilah: fields.Tefilah_Tefilahs || '',
-            Time: fields.Time || '',
-            Data: `${fields.Address || ''}, ${fields.City || ''}, ${fields.State || ''}`.trim(),
-            strCode: fields.strCode || ''
-        };
-    });
-
-    // Pretty print JSON and display
-    container.innerHTML = `<pre>${JSON.stringify(jsonOutput, null, 2)}</pre>`;
-}
+    
 /************************************************************
  * Geocoding.js
  *
@@ -800,7 +749,10 @@ if (checkPrayerTimesButton) {
         // 1) Load and display the entire filtered JSON (based on date, #ERS, #RSE, etc.)
         //    This populates `filteredRecords` and calls `displayRecords(filteredRecords)`
         await loadAndDisplayPrayerTimes();
-  
+       // Reapply the current tefilah filter
+       if (currentTefilahFilter) {
+        applyTefilahFilter(currentTefilahFilter);
+    }
         // At this stage, #prayerTimesOutput has JSON for *all* matching records,
         // but we do NOT geocode them yet. We'll geocode only for Tefilah subsets.
       } catch (err) {
@@ -812,65 +764,55 @@ if (checkPrayerTimesButton) {
   /****************************************************
    * TEFILAH BUTTONS: handle filter + geocode subset
    ****************************************************/
-  document.addEventListener('click', async function(e) {
-    if (e.target.classList.contains('tefilah-button')) {
-      const tefilahFilter = e.target.getAttribute('data-tefilah');
-      let filteredByTefilah;
-  
-      if (tefilahFilter === 'Shachris') {
-        filteredByTefilah = filteredRecords.filter(record => {
-          const arr = parseTefilahArray(record.fields.Tefilah_Tefilahs);
-          return arr.some(t => t.toLowerCase() === 'shachris');
-        });
-      } else if (tefilahFilter === 'Mincha') {
-        filteredByTefilah = filteredRecords.filter(record => {
-          const arr = parseTefilahArray(record.fields.Tefilah_Tefilahs);
-          return arr.some(t => t.toLowerCase() === 'mincha');
-        });
-      } else if (tefilahFilter === 'Maariv') {
-        filteredByTefilah = filteredRecords.filter(record => {
-          const arr = parseTefilahArray(record.fields.Tefilah_Tefilahs);
-          return arr.some(t => t.toLowerCase() === 'maariv');
-        });
-      } else if (tefilahFilter === 'Special') {
-        // Exclude shachris, mincha, maariv
-        filteredByTefilah = filteredRecords.filter(record => {
-          const arr = parseTefilahArray(record.fields.Tefilah_Tefilahs);
-          // keep record if it does NOT have any of shachris, mincha, maariv
-          return !arr.some(t => {
-            const lower = t.toLowerCase();
-            return ['shachris','mincha','maariv'].includes(lower);
-          });
-        });
-      } else {
-        // ShowAll or unrecognized => show all
-        filteredByTefilah = filteredRecords.slice();
-      }
-  
-      // 1) Display the filtered subset in #prayerTimesOutput as JSON
-      displayRecords(filteredByTefilah);
-  
-      // 2) Now geocode only this subset
-      //    Because #prayerTimesOutput only contains these Tefilah records
-      await geocodeJsonInPrayerTimesOutput();
-    }
-  });
-  
-  /****************************************************
-   * parseTefilahArray (unchanged)
-   ****************************************************/
-  function parseTefilahArray(raw) {
-    if (!raw) return [];
-    if (Array.isArray(raw)) return raw;
-    if (typeof raw === 'string') {
-      try {
-        return JSON.parse(raw.replace(/'/g, '"'));
-      } catch {
-        return [raw.trim()];
-      }
-    }
-    return [raw];
-  }
-  
+   document.addEventListener('click', async function (e) {
+        if (e.target.classList.contains('tefilah-button')) {
+            currentTefilahFilter = e.target.getAttribute('data-tefilah'); // Save the selected filter
+            applyTefilahFilter(currentTefilahFilter);
+        }
     });
+
+    function applyTefilahFilter(filter) {
+        let filteredByTefilah;
+
+        if (filter === 'Shachris') {
+            filteredByTefilah = filteredRecords.filter(record => {
+                const arr = parseTefilahArray(record.fields.Tefilah_Tefilahs);
+                return arr.some(t => t.toLowerCase() === 'shachris');
+            });
+        } else if (filter === 'Mincha') {
+            filteredByTefilah = filteredRecords.filter(record => {
+                const arr = parseTefilahArray(record.fields.Tefilah_Tefilahs);
+                return arr.some(t => t.toLowerCase() === 'mincha');
+            });
+        } else if (filter === 'Maariv') {
+            filteredByTefilah = filteredRecords.filter(record => {
+                const arr = parseTefilahArray(record.fields.Tefilah_Tefilahs);
+                return arr.some(t => t.toLowerCase() === 'maariv');
+            });
+        } else if (filter === 'Special') {
+            filteredByTefilah = filteredRecords.filter(record => {
+                const arr = parseTefilahArray(record.fields.Tefilah_Tefilahs);
+                return !arr.some(t => ['shachris', 'mincha', 'maariv'].includes(t.toLowerCase()));
+            });
+        } else {
+            filteredByTefilah = filteredRecords.slice();
+        }
+
+        displayRecords(filteredByTefilah);
+        geocodeJsonInPrayerTimesOutput();
+    }
+
+    function parseTefilahArray(raw) {
+        if (!raw) return [];
+        if (Array.isArray(raw)) return raw;
+        if (typeof raw === 'string') {
+            try {
+                return JSON.parse(raw.replace(/'/g, '"'));
+            } catch {
+                return [raw.trim()];
+            }
+        }
+        return [raw];
+    }
+});
     

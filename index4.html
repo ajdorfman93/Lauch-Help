@@ -1,77 +1,46 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title>Interactive Google Maps Markers</title>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>index</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" 			rel="stylesheet">
+    <link href="https://db.onlinewebfonts.com/c/22db60d19480ba0274c9eb6ba877ea9b?family=Aharoni+Bold+V1" rel="stylesheet">
+    <!-- CSS Links -->	  
     <link rel="stylesheet" href="css/vendor.css">
     <link rel="stylesheet" href="css/styles.css">
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBOtVjKr3D0vZmwg1QlxCy6SR4rVQenaPU&libraries=places"></script>
     <script src="time.js"></script>
     <script src="zmanim.js" defer></script>
     <script src="prayertimes.js" defer></script>
-    <script type="module" src="autocomp.js"></script>
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            padding: 20px;
-        }
-
-        #map-container {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 20px;
-        }
-
-        #map {
-            height: 250px;
-            width: 250px;
-            margin-right: 20px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-        }
-
-        #search-input {
-            width: 300px;
-            padding: 10px;
-            font-size: 14px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .tefilah-button,
-        .checkPrayerTimesButton {
-            margin: 5px 0;
-            padding: 10px 15px;
-            font-size: 14px;
-            border: none;
-            border-radius: 5px;
-            background-color: #007BFF;
-            color: white;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .tefilah-button:hover,
-        .checkPrayerTimesButton:hover {
-            background-color: #0056b3;
-        }
-    </style>
-</head>
-<body>
+    <script type="module" src="autocomp.js"></script>    
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBOtVjKr3D0vZmwg1QlxCy6SR4rVQenaPU&libraries=places"></script>   
+  </head> 
+  <body>
+     <h1>Jewish Calendar Event Checker</h1>
+  <div>  
+    <h1>Dynamic Iframe Map with Autocomplete</h1>
     <div id="map-container">
         <div id="map"></div>
         <input id="search-input" type="text" placeholder="Search location..." />
     </div>
+    <div>
+        <!-- Button to trigger the map update -->
+        <button type="button" id="checkPrayerTimesButton" class="checkPrayerTimesButton">Check Prayer Times</button>
+    </div>
 
-    <button type="button" id="checkPrayerTimesButton" class="checkPrayerTimesButton">Check Prayer Times</button>
-    <button class="tefilah-button" data-tefilah="Maariv">Maariv</button>
-    <button class="tefilah-button" data-tefilah="Mincha">Mincha</button>
-    <button class="tefilah-button" data-tefilah="Shachris">Shachris</button>
-    <button class="tefilah-button" data-tefilah="Special">Special</button>
+    <h1>Filtered Prayer Times</h1>
+    <label for="datePicker">Select a Date:</label>
+    <input type="date" id="datePicker">
 
-    <div id="prayerTimesOutput" style="display: none;"></div> <!-- Container for dynamic JSON -->
+      <button class="tefilah-button" data-tefilah="Maariv">Maariv</button>
+      <button class="tefilah-button" data-tefilah="Mincha">Mincha</button>
+      <button class="tefilah-button" data-tefilah="Shachris">Shachris</button>
+      <button class="tefilah-button" data-tefilah="Special">Special</button>
+  </div>
+    <div id="prayerTimesOutput"></div>
+  </div>
 
     <script>
         let map, autocomplete;
@@ -182,5 +151,54 @@
             });
         });
     </script>
+    <style>
+        body {    
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 20px;
+        }
+
+        #map-container {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        #map {
+            height: 250px;
+            width: 250px;
+            margin-right: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        #search-input {
+            width: 300px;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .tefilah-button,
+        .checkPrayerTimesButton {
+            margin: 5px 0;
+            padding: 10px 15px;
+            font-size: 14px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .tefilah-button:hover,
+        .checkPrayerTimesButton:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </body>
 </html>

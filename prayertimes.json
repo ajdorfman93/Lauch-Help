@@ -27,10 +27,10 @@
         ],
         "strZman_Start_Time": "sunrise",
         "strZman_Cutoff_Time": "minchaGedola",
-        "Address": "347 Coles Way",
         "City": "Lakewood",
         "State": "NJ",
-        "Zip_Code": "08701"
+        "Zip_Code": "08701",
+        "Address": "347 Coles Way"
       }
     },
     {
@@ -60,10 +60,10 @@
         ],
         "strZman_Start_Time": "chatzot",
         "strZman_Cutoff_Time": "minchaKetana",
-        "Address": "44 Coles Way",
         "City": "Lakewood",
         "State": "NJ",
-        "Zip_Code": "08701"
+        "Zip_Code": "08701",
+        "Address": "44 Coles Way"
       }
     },
     {
@@ -93,10 +93,10 @@
         ],
         "strZman_Start_Time": "chatzotNight",
         "strZman_Cutoff_Time": "chatzotNight",
-        "Address": "269 John St",
         "City": "Lakewood",
         "State": "NJ",
-        "Zip_Code": "08701"
+        "Zip_Code": "08701",
+        "Address": "269 John St"
       }
     },
     {
@@ -126,10 +126,10 @@
         ],
         "strZman_Start_Time": "chatzot",
         "strZman_Cutoff_Time": "minchaGedola",
-        "Address": "347 Coles Way",
         "City": "Lakewood",
         "State": "NJ",
-        "Zip_Code": "08701"
+        "Zip_Code": "08701",
+        "Address": "347 Coles Way"
       }
     },
     {
@@ -159,10 +159,10 @@
         ],
         "strZman_Start_Time": "dawn",
         "strZman_Cutoff_Time": "dawn",
-        "Address": "9 Sharon Ct",
         "City": "Lakewood",
         "State": "NJ",
-        "Zip_Code": "08701"
+        "Zip_Code": "08701",
+        "Address": "9 Sharon Ct"
       }
     },
     {
@@ -192,10 +192,10 @@
         ],
         "strZman_Start_Time": "sunrise",
         "strZman_Cutoff_Time": "minchaGedola",
-        "Address": "44 Coles Way",
         "City": "Lakewood",
         "State": "NJ",
-        "Zip_Code": "08701"
+        "Zip_Code": "08701",
+        "Address": "44 Coles Way"
       }
     },
     {
@@ -225,10 +225,10 @@
         ],
         "strZman_Start_Time": "sunrise",
         "strZman_Cutoff_Time": "chatzotNight",
-        "Address": "269 John St",
         "City": "Lakewood",
         "State": "NJ",
-        "Zip_Code": "08701"
+        "Zip_Code": "08701",
+        "Address": "269 John St"
       }
     }
   ]

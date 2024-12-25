@@ -86,7 +86,7 @@ function fillInAddress() {
  ****************************************************/
 // Once the DOM is loaded, attach a click listener to the "Save address" button
 document.addEventListener("DOMContentLoaded", () => {
-    const saveBtn = document.querySelector(".my-button");
+    const saveBtn = document.querySelector(".checkPrayerTimesButton");
     const mapIframe = document.getElementById("mapIframe");
   
     saveBtn.addEventListener("click", () => {

@@ -689,65 +689,188 @@ function displayRecords(records) {
     // Pretty print JSON and display
     container.innerHTML = `<pre>${JSON.stringify(jsonOutput, null, 2)}</pre>`;
 }
+/************************************************************
+ * Geocoding.js
+ *
+ * Usage:
+ *   1) <div id="prayerTimesOutput"> ... your JSON array ... </div>
+ *   2) <script src="Geocoding.js"></script>
+ *   3) Call geocodeJsonInPrayerTimesOutput() to update #prayerTimesOutput.
+ ************************************************************/
 
-        // ----------------------------------------
-        // 8) Button listeners
-        // ----------------------------------------
-        if (checkPrayerTimesButton) {
-            checkPrayerTimesButton.addEventListener('click', loadAndDisplayPrayerTimes);
-        }
+// Single API key for Geocoding + Maps
+const GEOCODE_API_KEY = "AIzaSyBOtVjKr3D0vZmwg1QlxCy6SR4rVQenaPU";
 
-        // Parse bracketed Tefilah strings, e.g. "['Shachris']"
-        function parseTefilahArray(raw) {
-            if (!raw) return [];
-            if (Array.isArray(raw)) return raw;
-            if (typeof raw === 'string') {
-                try {
-                    return JSON.parse(raw.replace(/'/g, '"'));
-                } catch {
-                    return [raw.trim()];
-                }
-            }
-            return [raw];
-        }
+/**
+ * Geocode a single address => returns { lat, lng } or null
+ */
+async function geocodeAddress(address) {
+  if (!address) return null;
 
-        // Tefilah Buttons with if/else if for Shachris, Mincha, Maariv, Special, ShowAll
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('tefilah-button')) {
-                const tefilahFilter = e.target.getAttribute('data-tefilah');
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+    address
+  )}&key=${GEOCODE_API_KEY}`;
 
-                let filteredByTefilah;
-                if (tefilahFilter === 'Shachris') {
-                    filteredByTefilah = filteredRecords.filter(record => {
-                        const arr = parseTefilahArray(record.fields.Tefilah_Tefilahs);
-                        return arr.some(t => t.toLowerCase() === 'shachris');
-                    });
-                } else if (tefilahFilter === 'Mincha') {
-                    filteredByTefilah = filteredRecords.filter(record => {
-                        const arr = parseTefilahArray(record.fields.Tefilah_Tefilahs);
-                        return arr.some(t => t.toLowerCase() === 'mincha');
-                    });
-                } else if (tefilahFilter === 'Maariv') {
-                    filteredByTefilah = filteredRecords.filter(record => {
-                        const arr = parseTefilahArray(record.fields.Tefilah_Tefilahs);
-                        return arr.some(t => t.toLowerCase() === 'maariv');
-                    });
-                } else if (tefilahFilter === 'Special') {
-                    // Exclude shachris, mincha, maariv
-                    filteredByTefilah = filteredRecords.filter(record => {
-                        const arr = parseTefilahArray(record.fields.Tefilah_Tefilahs);
-                        // keep record if it does NOT have any of shachris, mincha, maariv
-                        return !arr.some(t => {
-                            const lower = t.toLowerCase();
-                            return ['shachris','mincha','maariv'].includes(lower);
-                        });
-                    });
-                } else {
-                    // ShowAll or unrecognized => show all
-                    filteredByTefilah = filteredRecords.slice();
-                }
+  try {
+    const resp = await fetch(url);
+    const data = await resp.json();
 
-                displayRecords(filteredByTefilah);
-            }
-        });
+    if (data.status === "OK" && data.results && data.results.length > 0) {
+      const location = data.results[0].geometry.location;
+      return {
+        lat: location.lat || '',
+        lng: location.lng,
+      };
+    } else {
+      console.warn("Geocode failed:", address, data.status, data);
+      return null;
+    }
+  } catch (error) {
+    console.error("Error in geocodeAddress for:", address, error);
+    return null;
+  }
+}
+
+/**
+ * Read the JSON from #prayerTimesOutput,
+ * geocode each record’s 'Data' address => lat/lng,
+ * inject `latitude`, `longitude` into each record,
+ * then re-write the entire updated JSON array back into #prayerTimesOutput.
+ */
+async function geocodeJsonInPrayerTimesOutput() {
+  const container = document.getElementById("prayerTimesOutput");
+  if (!container) {
+    console.error('No element found with id="prayerTimesOutput"');
+    return;
+  }
+
+  // Parse whatever text content is in #prayerTimesOutput as JSON
+  let arr;
+  try {
+    const rawText = container.textContent.trim();
+    arr = JSON.parse(rawText);
+  } catch (err) {
+    console.error("Could not parse JSON from #prayerTimesOutput:", err);
+    return;
+  }
+
+  if (!Array.isArray(arr)) {
+    console.error("Expected an array in #prayerTimesOutput, but got:", arr);
+    return;
+  }
+
+  // Loop over each record => geocode => add lat/long
+  for (let i = 0; i < arr.length; i++) {
+    const record = arr[i];
+    if (!record.Data) {
+      continue; // skip if no address
+    }
+
+    const geo = await geocodeAddress(record.Data);
+    if (geo) {
+      // Add or overwrite 'latitude' and 'longitude' fields
+      record.latitude = geo.lat;
+      record.longitude = geo.lng;
+    } else {
+      record.latitude = null;
+      record.longitude = null;
+    }
+  }
+
+  // Re-stringify the updated array
+  const updatedJson = JSON.stringify(arr, null, 2);
+
+  // Re-inject into the same #prayerTimesOutput element
+  // so you can confirm it's updated with lat/long
+  container.textContent = updatedJson;
+
+  console.log("Updated #prayerTimesOutput JSON with lat/lng:", arr);
+}
+
+// Optionally attach to window so you can call from anywhere
+window.geocodeJsonInPrayerTimesOutput = geocodeJsonInPrayerTimesOutput;
+/****************************************************
+ * 8) Button listener for "Check Prayer Times"
+ ****************************************************/
+if (checkPrayerTimesButton) {
+    checkPrayerTimesButton.addEventListener('click', async () => {
+      try {
+        console.log("Check Prayer Times button clicked.");
+  
+        // 1) Load and display the entire filtered JSON (based on date, #ERS, #RSE, etc.)
+        //    This populates `filteredRecords` and calls `displayRecords(filteredRecords)`
+        await loadAndDisplayPrayerTimes();
+  
+        // At this stage, #prayerTimesOutput has JSON for *all* matching records,
+        // but we do NOT geocode them yet. We'll geocode only for Tefilah subsets.
+      } catch (err) {
+        console.error("Error in Check Prayer Times flow:", err);
+      }
     });
+  }
+  
+  /****************************************************
+   * TEFILAH BUTTONS: handle filter + geocode subset
+   ****************************************************/
+  document.addEventListener('click', async function(e) {
+    if (e.target.classList.contains('tefilah-button')) {
+      const tefilahFilter = e.target.getAttribute('data-tefilah');
+      let filteredByTefilah;
+  
+      if (tefilahFilter === 'Shachris') {
+        filteredByTefilah = filteredRecords.filter(record => {
+          const arr = parseTefilahArray(record.fields.Tefilah_Tefilahs);
+          return arr.some(t => t.toLowerCase() === 'shachris');
+        });
+      } else if (tefilahFilter === 'Mincha') {
+        filteredByTefilah = filteredRecords.filter(record => {
+          const arr = parseTefilahArray(record.fields.Tefilah_Tefilahs);
+          return arr.some(t => t.toLowerCase() === 'mincha');
+        });
+      } else if (tefilahFilter === 'Maariv') {
+        filteredByTefilah = filteredRecords.filter(record => {
+          const arr = parseTefilahArray(record.fields.Tefilah_Tefilahs);
+          return arr.some(t => t.toLowerCase() === 'maariv');
+        });
+      } else if (tefilahFilter === 'Special') {
+        // Exclude shachris, mincha, maariv
+        filteredByTefilah = filteredRecords.filter(record => {
+          const arr = parseTefilahArray(record.fields.Tefilah_Tefilahs);
+          // keep record if it does NOT have any of shachris, mincha, maariv
+          return !arr.some(t => {
+            const lower = t.toLowerCase();
+            return ['shachris','mincha','maariv'].includes(lower);
+          });
+        });
+      } else {
+        // ShowAll or unrecognized => show all
+        filteredByTefilah = filteredRecords.slice();
+      }
+  
+      // 1) Display the filtered subset in #prayerTimesOutput as JSON
+      displayRecords(filteredByTefilah);
+  
+      // 2) Now geocode only this subset
+      //    Because #prayerTimesOutput only contains these Tefilah records
+      await geocodeJsonInPrayerTimesOutput();
+    }
+  });
+  
+  /****************************************************
+   * parseTefilahArray (unchanged)
+   ****************************************************/
+  function parseTefilahArray(raw) {
+    if (!raw) return [];
+    if (Array.isArray(raw)) return raw;
+    if (typeof raw === 'string') {
+      try {
+        return JSON.parse(raw.replace(/'/g, '"'));
+      } catch {
+        return [raw.trim()];
+      }
+    }
+    return [raw];
+  }
+  
+    });
+    

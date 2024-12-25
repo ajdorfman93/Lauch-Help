@@ -14,7 +14,7 @@
     <script src="time.js"></script>
     <script src="zmanim.js" defer></script>
     <script src="prayertimes.js" defer></script>
-    <script type="module" src="autocomp.js"></script>
+    <script type="module" src="autocomp.js"></script>    
   </head> 
      <h1>Jewish Calendar Event Checker</h1>
   <div>  
@@ -48,7 +48,7 @@
         </label>
 
         <!-- Button to trigger the map update -->
-        <button type="button" class="my-button">Save address</button>
+        <button type="button" button id="checkPrayerTimesButton" class="checkPrayerTimesButton">Check Prayer Times</button>
       </form>
     </div>
 
@@ -79,7 +79,7 @@
     <h1>Filtered Prayer Times</h1>
     <label for="datePicker">Select a Date:</label>
     <input type="date" id="datePicker">
-    <button id="checkPrayerTimesButton">Check Prayer Times</button><div>
+
       <button class="tefilah-button" data-tefilah="Maariv">Maariv</button>
       <button class="tefilah-button" data-tefilah="Mincha">Mincha</button>
       <button class="tefilah-button" data-tefilah="Shachris">Shachris</button>
@@ -154,9 +154,8 @@
     <h3 id="tzeit72min"></h3>
   </div>
 </div>
-
-
       </div>
     </div>
+    <script src="markers.js"></script>
   </body>
 </html>

@@ -3,8 +3,66 @@ document.addEventListener('DOMContentLoaded', async function () {
     const checkPrayerTimesButton = document.getElementById('checkPrayerTimesButton');
     let currentTefilahFilter = null;
 
-    
-    // Class to handle the chosen date
+    // --- Integrated Zmanim for today's date ---
+    function setDateToToday() {
+        const today = new Date();
+        const formattedDate = today.toISOString().split("T")[0];
+        datePicker.value = formattedDate;
+        fetchZmanim(formattedDate);
+    }
+
+    async function fetchZmanim(date) {
+        const url = `https://www.hebcal.com/zmanim?cfg=json&geonameid=5100280&date=${date}`;
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+
+            const zmanimMapping = {
+                dawn: "dawn",
+                misheyakirMachmir: "misheyakirMachmir",
+                sunrise: "sunrise",
+                sofZmanShmaMGA: "sofZmanShmaMGA",
+                sofZmanShma: "sofZmanShma",
+                sofZmanTfilla: "sofZmanTfilla",
+                chatzot: "chatzot",
+                minchaGedola: "minchaGedola",
+                plagHaMincha: "plagHaMincha",
+                sunset: "sunset",
+                tzeit85deg: "tzeit85deg",
+                tzeit72min: "tzeit72min",
+            };
+
+            for (const [timeKey, elementId] of Object.entries(zmanimMapping)) {
+                const timeValue = data.times[timeKey];
+                if (timeValue && document.getElementById(elementId)) {
+                    document.getElementById(elementId).textContent = formatTime(timeValue);
+                }
+            }
+        } catch (error) {
+            console.error("Error fetching zmanim:", error);
+        }
+    }
+
+    function formatTime(isoString) {
+        const date = new Date(isoString);
+        return date.toTimeString().slice(0, 5);
+    }
+
+    setDateToToday();
+
+    datePicker.addEventListener("change", () => {
+        const selectedDate = datePicker.value;
+        if (selectedDate) {
+            fetchZmanim(selectedDate);
+        }
+    });
+    // --- End of integrated Zmanim code ---
+
     class EntryTime {
         constructor(date) {
             this.setDate(date);
@@ -181,16 +239,12 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             await handleERSLogic(filteredRecords, entryTime);
 
+<<<<<<< HEAD
             // #CUT => exclude if (Cut_off_Time) <= (ZmanStart + ZmanStartAdjustment)
             await handleCUTLogic(filteredRecords, entryTime);
 
             // 5) Display the resulting records
-            console.log("Prayer times loaded. Awaiting tefilah filter.");
-
-        } catch (error) {
-            console.error('Error fetching prayer times:', error);
             const container = document.getElementById('prayerTimesOutput');
-            if (container) {
                 container.innerHTML = `<p>Error: ${error.message}</p>`;
             }
         }
@@ -268,6 +322,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         return adjustedDate.toTimeString().slice(0, 5);
     }
 
+<<<<<<< HEAD
     // parseTimeOnSameDate: e.g. "10:00 AM" => local Date on same Y/M/D as baseDate
     function parseTimeOnSameDate(baseDate, timeStr) {
         if (!timeStr) return new Date('invalid');
@@ -313,6 +368,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         hours = hours % 12 || 12;
         return `${hours}:${String(minutes).padStart(2, '0')} ${suffix}`;
     }
+=======
+>>>>>>> parent of 75224b9 (I think Im done)
     function displayRecords(records) {
         const container = document.getElementById('prayerTimesOutput');
         if (!container) return;
@@ -331,6 +388,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         // Convert records to JSON structure
         const jsonOutput = records.map(record => {
             const fields = record.fields;
+<<<<<<< HEAD
             return {
                 Shul: fields.StrShulName2 || fields.StrShulName || '',
                 Tefilah: fields.Tefilah_Tefilahs || '',
@@ -419,6 +477,20 @@ async function geocodeJsonInPrayerTimesOutput() {
     const record = arr[i];
     if (!record.Data) {
       continue; // skip if no address
+=======
+            tableHtml += `
+                <tr>
+                    <td>${fields.StrShulName2 || ''}</td>
+                    <td>${fields.Tefilah_Tefilahs || ''}</td>
+                    <td>${fields.Time || ''}</td>
+                    <td>${fields.Data || ''}</td>
+                    <td>${fields.strCode || ''}</td>
+                </tr>
+            `;
+        }
+        tableHtml += '</table>';
+        container.innerHTML = tableHtml;
+>>>>>>> parent of 75224b9 (I think Im done)
     }
 
     const geo = await geocodeAddress(record.Data);
@@ -432,6 +504,7 @@ async function geocodeJsonInPrayerTimesOutput() {
     }
   }
 
+<<<<<<< HEAD
   // Re-stringify the updated array
   const updatedJson = JSON.stringify(arr, null, 2);
 
@@ -522,3 +595,26 @@ if (checkPrayerTimesButton) {
     }
 });
     
+=======
+    document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('tefilah-button')) {
+            const tefilahFilter = e.target.getAttribute('data-tefilah');
+
+            let filteredByTefilah;
+            if (tefilahFilter === "Special") {
+                filteredByTefilah = filteredRecords.filter(record => {
+                    const t = record.fields.Tefilah_Tefilahs || '';
+                    return t !== 'Shachris' && t !== 'Mincha' && t !== 'Maariv';
+                });
+            } else {
+                filteredByTefilah = filteredRecords.filter(record => {
+                    const t = record.fields.Tefilah_Tefilahs || '';
+                    return t.toLowerCase() === tefilahFilter.toLowerCase();
+                });
+            }
+
+            displayRecords(filteredByTefilah);
+        }
+    });
+});
+>>>>>>> parent of 75224b9 (I think Im done)

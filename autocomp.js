@@ -83,7 +83,7 @@ function fillInAddress() {
 // Once the DOM is loaded, attach a click listener to the "Save address" button
 document.addEventListener("DOMContentLoaded", () => {
     const saveBtn = document.querySelector(".checkPrayerTimesButton");
-    const mapIframe = document.getElementById("mapIframe");
+    const map = document.getElementById("map");
   
     saveBtn.addEventListener("click", () => {
       // Build the address from the form fields
@@ -108,7 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const newSrc = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBOtVjKr3D0vZmwg1QlxCy6SR4rVQenaPU&q=${combinedAddress}`;
   
       // Update the iframe src
-      mapIframe.src = newSrc;
+      map.src = newSrc;
     });
   });
 
@@ -151,8 +151,8 @@ async function updateIframeMap(address) {
     const { lat, lng } = geocodeResult;
 
     // Update the iframe src with new location
-    const mapIframe = document.getElementById("mapIframe");
-    mapIframe.src = `https://www.google.com/maps/embed/v1/place?key=${GEOCODE_API_KEY}&q=${lat},${lng}`;
+    const map = document.getElementById("map");
+    map.src = `https://www.google.com/maps/embed/v1/place?key=${GEOCODE_API_KEY}&q=${lat},${lng}`;
     console.log(`Map updated to lat: ${lat}, lng: ${lng}`);
   } else {
     alert("Failed to geocode the address. Please check the address and try again.");

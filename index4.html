@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Interactive Google Maps Markers</title>
+    <link rel="stylesheet" href="css/vendor.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBOtVjKr3D0vZmwg1QlxCy6SR4rVQenaPU&libraries=places"></script>
+    <script src="time.js"></script>
+    <script src="zmanim.js" defer></script>
+    <script src="prayertimes.js" defer></script>
+    <script type="module" src="autocomp.js"></script>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 20px;
+        }
+
+        #map-container {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        #map {
+            height: 250px;
+            width: 250px;
+            margin-right: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        #search-input {
+            width: 300px;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .tefilah-button,
+        .checkPrayerTimesButton {
+            margin: 5px 0;
+            padding: 10px 15px;
+            font-size: 14px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .tefilah-button:hover,
+        .checkPrayerTimesButton:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div id="map-container">
+        <div id="map"></div>
+        <input id="search-input" type="text" placeholder="Search location..." />
+    </div>
+
+    <button type="button" id="checkPrayerTimesButton" class="checkPrayerTimesButton">Check Prayer Times</button>
+    <button class="tefilah-button" data-tefilah="Maariv">Maariv</button>
+    <button class="tefilah-button" data-tefilah="Mincha">Mincha</button>
+    <button class="tefilah-button" data-tefilah="Shachris">Shachris</button>
+    <button class="tefilah-button" data-tefilah="Special">Special</button>
+
+    <div id="prayerTimesOutput" style="display: none;"></div> <!-- Container for dynamic JSON -->
+
+    <script>
+        let map, autocomplete;
+
+        function initMap() {
+            // Initialize the map
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: 40.0700, lng: -74.2075 }, // Default to Lakewood, NJ
+                zoom: 13,
+                disableDefaultUI: true, // Hide default UI including Map/Satellite toggle
+            });
+
+            // Input field for autocomplete
+            const input = document.getElementById("search-input");
+            autocomplete = new google.maps.places.Autocomplete(input);
+
+            // Bias autocomplete results to the map's viewport
+            autocomplete.bindTo("bounds", map);
+
+            // Handle place selection
+            autocomplete.addListener("place_changed", () => {
+                const place = autocomplete.getPlace();
+
+                if (!place.geometry || !place.geometry.location) {
+                    alert("No details available for input: '" + place.name + "'");
+                    return;
+                }
+
+                // Center the map on the selected location
+                map.setCenter(place.geometry.location);
+                map.setZoom(15);
+            });
+
+            // Fetch dynamic data from #prayerTimesOutput
+            const rawData = document.getElementById("prayerTimesOutput").textContent;
+            const data = rawData ? JSON.parse(rawData) : [];
+
+            // Add interactive markers
+            data.forEach((location) => {
+                const marker = new google.maps.Marker({
+                    position: { lat: location.latitude, lng: location.longitude },
+                    map: map,
+                    title: location.Shul,
+                    animation: google.maps.Animation.DROP,
+                    icon: {
+                        url: "https://maps.google.com/mapfiles/kml/shapes/poi.png", // Custom marker icon
+                        scaledSize: new google.maps.Size(30, 30),
+                    },
+                });
+
+                // Info window for each marker
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `
+                        <div>
+                            <h3>${location.Shul}</h3>
+                            <p><strong>Tefilah:</strong> ${location.Tefilah}</p>
+                            <p><strong>Time:</strong> ${location.Time}</p>
+                            <p><strong>Address:</strong> ${location.Data}</p>
+                            <p><strong>Code:</strong> ${location.strCode}</p>
+                        </div>
+                    `,
+                });
+
+                // Open info window and toggle bounce on marker click
+                marker.addListener("click", () => {
+                    infoWindow.open(map, marker);
+
+                    // Toggle bounce animation
+                    if (marker.getAnimation() !== null) {
+                        marker.setAnimation(null);
+                    } else {
+                        marker.setAnimation(google.maps.Animation.BOUNCE);
+
+                        // Stop bounce after 2 seconds
+                        setTimeout(() => marker.setAnimation(null), 2000);
+                    }
+                });
+
+                // Add hover effect
+                marker.addListener("mouseover", () => {
+                    marker.setIcon({
+                        url: "https://maps.google.com/mapfiles/kml/shapes/info-i_maps.png",
+                        scaledSize: new google.maps.Size(30, 30),
+                    });
+                });
+
+                marker.addListener("mouseout", () => {
+                    marker.setIcon({
+                        url: "https://maps.google.com/mapfiles/kml/shapes/poi.png",
+                        scaledSize: new google.maps.Size(30, 30),
+                    });
+                });
+            });
+        }
+
+        // Initialize the map when the window loads
+        window.onload = initMap;
+
+        // Event listeners for buttons
+        document.getElementById("checkPrayerTimesButton").addEventListener("click", () => {
+            alert("Checking prayer times... (implement logic here)");
+        });
+
+        document.querySelectorAll(".tefilah-button").forEach(button => {
+            button.addEventListener("click", (e) => {
+                const tefilah = e.target.dataset.tefilah;
+                alert(`Filtering for ${tefilah}... (implement logic here)`);
+            });
+        });
+    </script>
+</body>
+</html>

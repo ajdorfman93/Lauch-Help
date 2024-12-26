@@ -91,47 +91,104 @@ document.addEventListener('DOMContentLoaded', async function () {
             return weekday[this.date.getDay()]; 
         }
     }
-
-    // conditionMapping for day-of-week and holiday logic
-    const conditionMapping = {
-        '#SF': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-        '#ST': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'],
-        '#AW': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-        '#XMT': ['Tuesday', 'Wednesday', 'Friday'],
-        '#MTT': ['Monday', 'Tuesday', 'Wednesday', 'Thursday'],
-        '#MND': ['Monday'],
-        '#TD': ['Tuesday'],
-        '#WD': ['Wednesday'],
-        '#TH': ['Thursday'],
-        '#FR': ['Friday'],
-        '#SUN': ['Sunday'],
-        '#SHA': ['Saturday'],
-
-        '#RH1': (htmlContent) => htmlContent.includes("1st of Tishrei"),
-        '#RH2': (htmlContent) => htmlContent.includes("ראש השנה ב׳"),
-        '#YK': (htmlContent) => htmlContent.includes("10 Tishrei"),
-        '#SUK1': (htmlContent) => htmlContent.includes("סוכות א"),
-        '#SUK2': (htmlContent) => htmlContent.includes("סוכות ב"),
-        '#CHM-SUK': (htmlContent) => htmlContent.includes("Sukkot") && htmlContent.includes("CH’’M"),
-        '#SHM-SUK': (htmlContent) => htmlContent.includes("Shmini Atzeret"),
-        '#SIT': (htmlContent) => htmlContent.includes("Simchat Torah"),
-
-        '#CHAN': (htmlContent) => {
-            const eightdays = [
-                "25 Kislev","26 Kislev","27 Kislev","28 Kislev",
-                "29 Kislev","30 Kislev","1 Tevet","2 Tevet"
-            ];
-            return eightdays.some(day => htmlContent.includes(day));
-        },
-        '#CHAN1': (htmlContent) => htmlContent.includes("25 Kislev"),
-        '#CHAN2': (htmlContent) => htmlContent.includes("26 Kislev"),
-        '#CHAN3': (htmlContent) => htmlContent.includes("27 Kislev"),
-        '#CHAN4': (htmlContent) => htmlContent.includes("28 Kislev"),
-        '#CHAN5': (htmlContent) => htmlContent.includes("29 Kislev"),
-        '#CHAN6': (htmlContent) => htmlContent.includes("30 Kislev"),
-        '#CHAN7': (htmlContent) => htmlContent.includes("1 Tevet"),
-        '#CHAN8': (htmlContent) => htmlContent.includes("2 Tevet"),
-
+    // 1) Create a helper factory for weekday-based codes
+function weekdayConditionFactory(allowedDays) {
+    return (htmlContent, entryTime, record) => {
+      // 1) Exclude on major yomtov
+      if (htmlContent.includes("major") && htmlContent.includes("yomtov")) {
+        return false;
+      }
+  
+      // 2) Exclude if "Erev major holiday" + Tefilah = Mincha/Maariv
+      if (
+        htmlContent.includes("major") &&
+        htmlContent.includes("Erev") &&
+        htmlContent.includes("holiday")
+      ) {
+        const tefilah = record.Tefilah; // e.g. "['Mincha']", "['Maariv']"
+        if (tefilah === "['Mincha']" || tefilah === "['Maariv']") {
+          return false;
+        }
+      }
+  
+      // 3) Otherwise, return true only if dayOfWeek is in allowedDays
+      return allowedDays.includes(entryTime.dayOfWeek);
+    };
+  }
+// conditionMapping for day-of-week and holiday logic
+const conditionMapping = {
+  // --- WEEKDAY-BASED CODES (DRYer approach) ---
+  '#SF':  weekdayConditionFactory(['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday']),
+  '#ST':  weekdayConditionFactory(['Sunday','Monday','Tuesday','Wednesday','Thursday']),
+  '#AW':  weekdayConditionFactory(['Monday','Tuesday','Wednesday','Thursday','Friday']),
+  '#XMT': weekdayConditionFactory(['Tuesday','Wednesday','Friday']),
+  '#MTT': weekdayConditionFactory(['Monday','Tuesday','Wednesday','Thursday']),
+  '#MND': weekdayConditionFactory(['Monday']),
+  '#TD':  weekdayConditionFactory(['Tuesday']),
+  '#WD':  weekdayConditionFactory(['Wednesday']),
+  '#TH':  weekdayConditionFactory(['Thursday']),
+  '#FR':  weekdayConditionFactory(['Friday']),
+  '#SUN': weekdayConditionFactory(['Sunday']),
+  '#SHA': weekdayConditionFactory(['Saturday']),
+    // --- Existing holiday-based codes remain the same (function or array) ---
+    // #RH1: Rosh Hashanah Day 1
+    '#RH1': (htmlContent) => htmlContent.includes("1st of Tishrei"),
+    
+    // #RH2: Rosh Hashanah Day 2
+    '#RH2': (htmlContent) => htmlContent.includes("ראש השנה ב׳"),
+    
+    // #YK: Yom Kippur
+    '#YK': (htmlContent) => htmlContent.includes("10 Tishrei"),
+    
+    // #SUK1: Sukkot Day 1
+    '#SUK1': (htmlContent) => htmlContent.includes("סוכות א"),
+    
+    // #SUK2: Sukkot Day 2
+    '#SUK2': (htmlContent) => htmlContent.includes("סוכות ב"),
+    
+    // #CHM-SUK: Chol HaMoed Sukkot
+    '#CHM-SUK': (htmlContent) => htmlContent.includes("Sukkot") && htmlContent.includes("CH’’M"),
+    
+    // #SHM-SUK: Shemini Atzeret
+    '#SHM-SUK': (htmlContent) => htmlContent.includes("Shmini Atzeret"),
+    
+    // #SIT: Simchat Torah
+    '#SIT': (htmlContent) => htmlContent.includes("Simchat Torah"),
+    
+    // #CHAN: All days of Chanukah
+    '#CHAN': (htmlContent) => {
+        const eightdays = [
+            "25 Kislev", "26 Kislev", "27 Kislev", "28 Kislev",
+            "29 Kislev", "30 Kislev", "1 Tevet", "2 Tevet"
+        ];
+        return eightdays.some(day => htmlContent.includes(day));
+    },
+    
+    // #CHAN1: Chanukah Day 1
+    '#CHAN1': (htmlContent) => htmlContent.includes("25 Kislev"),
+    
+    // #CHAN2: Chanukah Day 2
+    '#CHAN2': (htmlContent) => htmlContent.includes("26 Kislev"),
+    
+    // #CHAN3: Chanukah Day 3
+    '#CHAN3': (htmlContent) => htmlContent.includes("27 Kislev"),
+    
+    // #CHAN4: Chanukah Day 4
+    '#CHAN4': (htmlContent) => htmlContent.includes("28 Kislev"),
+    
+    // #CHAN5: Chanukah Day 5
+    '#CHAN5': (htmlContent) => htmlContent.includes("29 Kislev"),
+    
+    // #CHAN6: Chanukah Day 6
+    '#CHAN6': (htmlContent) => htmlContent.includes("30 Kislev"),
+    
+    // #CHAN7: Chanukah Day 7
+    '#CHAN7': (htmlContent) => htmlContent.includes("1 Tevet"),
+    
+    // #CHAN8: Chanukah Day 8
+    '#CHAN8': (htmlContent) => htmlContent.includes("2 Tevet"),
+    
+    // #BHZ: Bein HaZmanim from RC Nisan till RC Iyyar & 10th Tishri till Rosh Chodesh Cheshvan
         '#BHZ': (htmlContent) => {
             const daysNisanToCheshvan = [
                 "1 Nisan","2 Nisan","3 Nisan","4 Nisan","5 Nisan","6 Nisan","7 Nisan","8 Nisan","9 Nisan",
@@ -142,31 +199,48 @@ document.addEventListener('DOMContentLoaded', async function () {
                 "25 Tishrei","26 Tishrei","27 Tishrei","28 Tishrei","29 Tishrei","30 Tishrei","1 Cheshvan"
             ];
             return daysNisanToCheshvan.some(day => htmlContent.includes(day));
-        },
+        }, 
+    
+    // #BHSR: Bein HaZmanim (Summer) - After Tisha B'Av until Elul
         '#BHSR': (htmlContent) => {
             const daysAv = [
                 "10 Av","11 Av","12 Av","13 Av","14 Av","15 Av","16 Av","17 Av","18 Av","19 Av","20 Av",
                 "21 Av","22 Av","23 Av","24 Av","25 Av","26 Av","27 Av","28 Av","29 Av"
             ];
             return daysAv.some(day => htmlContent.includes(day));
-        },
+        }, 
 
-        '#EVY': (htmlContent) => htmlContent.includes("Erev Yom Kippur"),
-        '#EVPS': (htmlContent) => htmlContent.includes("Erev Pesach"),
-        '#EVSUK': (htmlContent) => htmlContent.includes("Erev Sukkot"),
-        '#EVRH': (htmlContent) => htmlContent.includes("29 Elul"),
+    // #EVY: Erev Yom Kippur
+    '#EVY': (htmlContent) => htmlContent.includes("Erev Yom Kippur"),
+    
+    // #EVPS: Erev Pesach
+    '#EVPS': (htmlContent) => htmlContent.includes("Erev Pesach"),
+    
+    // #EVSUK: Erev Sukkot
+    '#EVSUK': (htmlContent) => htmlContent.includes("Erev Sukkot"),
+    
+    // #EVRH: Erev Rosh Hashanah
+    '#EVRH': (htmlContent) => htmlContent.includes("29 Elul"),
 
-        '#RC': (htmlContent) => htmlContent.toLowerCase().includes("rosh chodesh"),
-        '#XRC': (htmlContent) => !htmlContent.toLowerCase().includes("rosh chodesh"),
-        '#XFD': (htmlContent) => {
-            const minorFastDays = [
-                "Fast of Esther","10 Tevet","17 Tammuz","9 Av"
-            ];
-            return !minorFastDays.some(fast => htmlContent.includes(fast));
-        },
-
-        '#FD': (htmlContent) => htmlContent.includes("fast") && !htmlContent.includes("major"),
-        '#AMH': (htmlContent) => htmlContent.includes("major") && htmlContent.includes("yomtov"),
+    // #RC: Rosh Chodesh (New Month)
+    '#RC': (htmlContent) => htmlContent.toLowerCase().includes("rosh chodesh"),
+    
+    // #XRC: Excluding Rosh Chodesh
+    '#XRC': (htmlContent) => !htmlContent.toLowerCase().includes("rosh chodesh"),
+    
+    // #XFD: Excluding Minor Fast day
+    '#XFD': (htmlContent) => {
+        const minorFastDays = [
+            "Fast of Esther", "10 Tevet", "17 Tammuz", "9 Av"
+        ];
+        return !minorFastDays.some(fast => htmlContent.includes(fast));
+    },
+    
+    // #FD: All Minor Fast Days, Asara B'Teves, Ta'anit Esther, Shiva Asar B'Tammuz
+    '#FD': (htmlContent) => htmlContent.includes("fast") && !htmlContent.includes("major"),
+    
+    // #AMH: All Major Holidays
+    '#AMH': (htmlContent) => htmlContent.includes("major") && htmlContent.includes("yomtov"),
 
         // Additional codes to be processed by custom logic:
         '#ERS': null,  // handleERSLogic
@@ -202,53 +276,55 @@ document.addEventListener('DOMContentLoaded', async function () {
             const data = await response.json();
             const records = data.records || [];
 
-            // 3) Filter by day-of-week & holiday logic (using conditionMapping)
-            filteredRecords = records.filter(record => {
-                const fields = record.fields;
-                const strCodeField = fields.strCode;
-                let strCodeArray;
+           // 3) Filter by day-of-week & holiday logic (using conditionMapping)
+filteredRecords = records.filter(record => {
+    const fields = record.fields;
+    const strCodeField = fields.strCode;
+    let strCodeArray;
 
-                if (typeof strCodeField === 'string') {
-                    try {
-                        // e.g. "['#CUT','#UST']" => ["#CUT","#UST"]
-                        strCodeArray = JSON.parse(strCodeField.replace(/'/g, '"'));
-                    } catch {
-                        console.warn('Could not parse strCode as JSON. Using raw string check.');
-                        strCodeArray = [strCodeField];
-                    }
-                } else {
-                    strCodeArray = strCodeField; // If it's already an array
-                }
+    if (typeof strCodeField === 'string') {
+        try {
+            // e.g. "['#CUT','#UST']" => ["#CUT","#UST"]
+            strCodeArray = JSON.parse(strCodeField.replace(/'/g, '"'));
+        } catch {
+            console.warn('Could not parse strCode as JSON. Using raw string check.');
+            strCodeArray = [strCodeField];
+        }
+    } else {
+        strCodeArray = strCodeField; // If it's already an array
+    }
 
-                // Check for any "exclusion" code that returns false => exclude
-                const hasExclusion = strCodeArray.some(code => {
-                    const condition = conditionMapping[code];
-                    if (condition && typeof condition === 'function') {
-                        return !condition(htmlContent);
-                    }
-                    return false;
-                });
-                if (hasExclusion) return false;
+    // Check for any "exclusion" code that returns false => exclude
+    const hasExclusion = strCodeArray.some(code => {
+        const condition = conditionMapping[code];
+        if (typeof condition === 'function') {
+            // Pass both htmlContent & entryTime
+            return !condition(htmlContent, entryTime, record);
+        }
+        return false;
+    });
+    if (hasExclusion) return false;
 
-                // Check for "inclusion" codes
-                return strCodeArray.some(code => {
-                    if (code in conditionMapping) {
-                        const condition = conditionMapping[code];
-                        if (!condition) {
-                            // code is handled by custom logic (#CUT, #UST, etc.)
-                            return true;
-                        } 
-                        if (typeof condition === 'function') {
-                            return condition(htmlContent);
-                        }
-                        if (Array.isArray(condition)) {
-                            return condition.includes(entryTime.dayOfWeek);
-                        }
-                        return false;
-                    }
-                    return false;
-                });
-            });
+    // Check for "inclusion" codes
+    return strCodeArray.some(code => {
+        if (code in conditionMapping) {
+            const condition = conditionMapping[code];
+            if (!condition) {
+                // code is handled by custom logic (#CUT, #UST, etc.)
+                return true;
+            } 
+            if (typeof condition === 'function') {
+                // Pass both htmlContent & entryTime
+                return condition(htmlContent, entryTime, record);
+            }
+            if (Array.isArray(condition)) {
+                return condition.includes(entryTime.dayOfWeek);
+            }
+        }
+        return false;
+    });
+});
+
 
             // 4) Process special codes in order:
             await handleERSLogic(filteredRecords, entryTime);
@@ -683,113 +759,15 @@ function displayRecords(records) {
             Tefilah: fields.Tefilah_Tefilahs || '',
             Time: fields.Time || '',
             Data: `${fields.Address || ''}, ${fields.City || ''}, ${fields.State || ''}`.trim(),
-            strCode: fields.strCode || ''
+            strCode: fields.strCode || '',
+            position: {lat: fields.Lat || '',
+            lng: fields.Lng || '',}
         };
     });
 
     // Pretty print JSON and display
     container.innerHTML = `<pre>${JSON.stringify(jsonOutput, null, 2)}</pre>`;
 }
-/************************************************************
- * Geocoding.js
- *
- * Usage:
- *   1) <div id="prayerTimesOutput"> ... your JSON array ... </div>
- *   2) <script src="Geocoding.js"></script>
- *   3) Call geocodeJsonInPrayerTimesOutput() to update #prayerTimesOutput.
- ************************************************************/
-
-// Single API key for Geocoding + Maps
-const GEOCODE_API_KEY = "AIzaSyBOtVjKr3D0vZmwg1QlxCy6SR4rVQenaPU";
-
-/**
- * Geocode a single address => returns { lat, lng } or null
- */
-async function geocodeAddress(address) {
-  if (!address) return null;
-
-  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
-    address
-  )}&key=${GEOCODE_API_KEY}`;
-
-  try {
-    const resp = await fetch(url);
-    const data = await resp.json();
-
-    if (data.status === "OK" && data.results && data.results.length > 0) {
-      const location = data.results[0].geometry.location;
-      return {
-        lat: location.lat || '',
-        lng: location.lng,
-      };
-    } else {
-      console.warn("Geocode failed:", address, data.status, data);
-      return null;
-    }
-  } catch (error) {
-    console.error("Error in geocodeAddress for:", address, error);
-    return null;
-  }
-}
-
-/**
- * Read the JSON from #prayerTimesOutput,
- * geocode each record’s 'Data' address => lat/lng,
- * inject `latitude`, `longitude` into each record,
- * then re-write the entire updated JSON array back into #prayerTimesOutput.
- */
-async function geocodeJsonInPrayerTimesOutput() {
-  const container = document.getElementById("prayerTimesOutput");
-  if (!container) {
-    console.error('No element found with id="prayerTimesOutput"');
-    return;
-  }
-
-  // Parse whatever text content is in #prayerTimesOutput as JSON
-  let arr;
-  try {
-    const rawText = container.textContent.trim();
-    arr = JSON.parse(rawText);
-  } catch (err) {
-    console.error("Could not parse JSON from #prayerTimesOutput:", err);
-    return;
-  }
-
-  if (!Array.isArray(arr)) {
-    console.error("Expected an array in #prayerTimesOutput, but got:", arr);
-    return;
-  }
-
-  // Loop over each record => geocode => add lat/long
-  for (let i = 0; i < arr.length; i++) {
-    const record = arr[i];
-    if (!record.Data) {
-      continue; // skip if no address
-    }
-
-    const geo = await geocodeAddress(record.Data);
-    if (geo) {
-      // Add or overwrite 'latitude' and 'longitude' fields
-      record.latitude = geo.lat;
-      record.longitude = geo.lng;
-    } else {
-      record.latitude = null;
-      record.longitude = null;
-    }
-  }
-
-  // Re-stringify the updated array
-  const updatedJson = JSON.stringify(arr, null, 2);
-
-  // Re-inject into the same #prayerTimesOutput element
-  // so you can confirm it's updated with lat/long
-  container.textContent = updatedJson;
-
-  console.log("Updated #prayerTimesOutput JSON with lat/lng:", arr);
-}
-
-// Optionally attach to window so you can call from anywhere
-window.geocodeJsonInPrayerTimesOutput = geocodeJsonInPrayerTimesOutput;
 /****************************************************
  * 8) Button listener for "Check Prayer Times"
  ****************************************************/
@@ -850,17 +828,11 @@ if (checkPrayerTimesButton) {
       }
   
       // 1) Display the filtered subset in #prayerTimesOutput as JSON
-      displayRecords(filteredByTefilah);
-  
-      // 2) Now geocode only this subset
-      //    Because #prayerTimesOutput only contains these Tefilah records
-      await geocodeJsonInPrayerTimesOutput();
+      displayRecords(filteredByTefilah); 
     }
   });
   
-  /****************************************************
-   * parseTefilahArray (unchanged)
-   ****************************************************/
+  /* parseTefilahArray*/
   function parseTefilahArray(raw) {
     if (!raw) return [];
     if (Array.isArray(raw)) return raw;

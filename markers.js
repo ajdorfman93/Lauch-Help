@@ -1,57 +1,114 @@
+let map, infoWindow, autocomplete;
 
-async function initMap() {
-    // 1) Request the needed libraries from the beta version
-    const { Map, InfoWindow } = await google.maps.importLibrary("maps");
-    const { AdvancedMarkerElement, PinElement } =
-      await google.maps.importLibrary("marker");
+function initMap() {
+  // Create the map
+  map = new google.maps.Map(document.getElementById("map"), {
+    center: { lat: 40.067, lng: -74.205 }, // Lakewood area
+    zoom: 13,
+    disableDefaultUI: true,
+  });
 
-    // 2) Grab the JSON text from the hidden div
-    const rawData = document
-      .getElementById("prayerTimesOutput")
-      .textContent.trim();
+  // Create a single InfoWindow to reuse
+  infoWindow = new google.maps.InfoWindow();
 
-    // 3) Parse the JSON into an array of marker definitions
-    let tourStops;
-    try {
-      tourStops = JSON.parse(rawData);
-    } catch (err) {
-      console.error("Error parsing JSON from #prayerTimesOutput:", err);
-      return;
+  // Setup Autocomplete
+  const input = document.getElementById("search-input");
+  autocomplete = new google.maps.places.Autocomplete(input);
+  autocomplete.addListener("place_changed", () => {
+    const place = autocomplete.getPlace();
+    if (place.geometry && place.geometry.location) {
+      map.setCenter(place.geometry.location);
+      map.setZoom(14);
     }
+  });
+}
 
-    // 4) Create the map
-    const map = new Map(document.getElementById("map"), {
-      zoom: 12,
-      // A central location near Sedona, for example
-      center: { lat: 34.84555, lng: -111.8035 },
-      // This mapId is just an example; remove or change if you want
-      mapId: "4504f8b37365c3d0",
-    });
+// This function reads the raw JSON from #prayerTimesOutput, 
+// then converts it into a valid GeoJSON FeatureCollection.
+function getPrayerTimesGeoJSON() {
+  // 1. Grab the JSON text from the <pre> block:
+  const rawText = document.querySelector("#prayerTimesOutput pre").innerText.trim();
 
-    // 5) Create a shared InfoWindow
-    const infoWindow = new InfoWindow();
-
-    // 6) Loop through the array to create advanced markers
-    tourStops.forEach(({ position, title }, i) => {
-      // PinElement is optional but provides a nice stylized marker
-      const pin = new PinElement({
-        glyph: `${i + 1}`, // or any text
-        scale: 1.5,        // adjust size
-      });
-
-      const marker = new AdvancedMarkerElement({
-        position,
-        map,
-        title: `${i + 1}. ${title}`, // hover text
-        content: pin.element,        // actual DOM element for the marker
-        gmpClickable: true,          // ensure it's clickable
-      });
-
-      // 7) On marker click, open an info window
-      marker.addListener("click", ({ domEvent, latLng }) => {
-        infoWindow.close();
-        infoWindow.setContent(marker.title);
-        infoWindow.open(marker.map, marker);
-      });
-    });
+  // 2. Parse into a JS array of objects:
+  let data;
+  try {
+    data = JSON.parse(rawText);
+  } catch (err) {
+    console.error("Error parsing prayer times JSON:", err);
+    return null;
   }
+
+  // 3. Convert to a GeoJSON FeatureCollection
+  const features = data.map((item) => {
+    return {
+      type: "Feature",
+      properties: {
+        Shul: item.Shul,
+        Tefilah: item.Tefilah,
+        Time: item.Time,
+        Data: item.Data,
+        strCode: item.strCode
+      },
+      geometry: {
+        type: "Point",
+        coordinates: [item.position.lng, item.position.lat],
+      },
+    };
+  });
+
+  return {
+    type: "FeatureCollection",
+    features: features,
+  };
+}
+
+// Adds the GeoJSON to the map's data layer
+function addGeoJSONToMap(geojson) {
+  if (!geojson) return;
+
+  // Clear any existing data
+  map.data.forEach((feature) => {
+    map.data.remove(feature);
+  });
+
+  // Add new data
+  map.data.addGeoJson(geojson);
+
+  // Optionally, style the points (markers)
+  map.data.setStyle({
+    icon: {
+      url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png", 
+    }
+  });
+
+  // When a feature is clicked, show an infoWindow with the details
+  map.data.addListener("click", (event) => {
+    const props = event.feature.getProperty("Shul");
+    const time = event.feature.getProperty("Time");
+    const address = event.feature.getProperty("Data");
+    
+    const contentString = `
+      <div>
+        <strong>Shul:</strong> ${props}<br/>
+        <strong>Time:</strong> ${time}<br/>
+        <strong>Address:</strong> ${address}<br/>
+      </div>
+    `;
+
+    infoWindow.setContent(contentString);
+    infoWindow.setPosition(event.latLng);
+    infoWindow.open(map);
+  });
+}
+
+// Button click: parse & add the points to the map
+function onCheckPrayerTimesClick() {
+  const geojson = getPrayerTimesGeoJSON();
+  addGeoJSONToMap(geojson);
+}
+
+// Initialize everything once the page has loaded
+window.addEventListener("load", () => {
+  initMap();
+  document.getElementById("checkPrayerTimesButton").addEventListener("click", onCheckPrayerTimesClick);
+});

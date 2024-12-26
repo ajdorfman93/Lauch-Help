@@ -333,7 +333,55 @@ sup {
 img {
     border-style : none;
 }
+#map-container {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
 
+  .map {
+    height: 250px;
+    width: 250px;
+    margin-right: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+
+
+  .tefilah-button,
+  .checkPrayerTimesButton {
+    margin: 5px 0;
+    padding: 10px 15px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007BFF;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .tefilah-button:hover,
+  .checkPrayerTimesButton:hover {
+    background-color: #0056b3;
+  }
+
+  /* Just a bit of spacing and styling for the JSON output block */
+  #prayerTimesOutput {
+    width: 100%;
+    max-width: 600px;
+    background: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+  }
+
+  #prayerTimesOutput pre {
+    margin: 0;
+    font-size: 14px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
 button,
 input,
 optgroup,
@@ -3674,4 +3722,4 @@ img.u-pull-left {
     .ss-go-top {
         right : 6vw;
     }
-}
+}  

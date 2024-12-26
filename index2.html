@@ -1,61 +1,85 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width">
-    <title>Prayer Times</title>
-</head>
-<body>
-    <input type="date" id="datePicker" />
-
-    <button id="checkPrayerTimesButton">Check Prayer Times</button>
-    <div id="prayerTimesOutput"></div>
-
-    <!-- Include the time.js script that has EntryTime and Times classes -->
-    <script src="time.js"></script>
-    <!-- Include the prayertimes.js script that filters and displays prayer times -->
-    <script src="prayertimes.js"></script>
-</body>
-</html>
-const conditionMapping = {
-    '#SF': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-    '#ST': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'],
-    '#AW': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-    '#XMT': ['Tuesday', 'Wednesday', 'Friday'],
-    '#MTT': ['Monday', 'Tuesday', 'Wednesday', 'Thursday'],
-    '#MND': ['Monday'],
-    '#TD': ['Tuesday'],
-    '#WD': ['Wednesday'],
-    '#TH': ['Thursday'],
-    '#FR': ['Friday'],
-    '#SUN': ['Sunday'],
-    '#SHA': ['Saturday'],
-
-    '#RH1': (htmlContent) => htmlContent.includes("1st of Tishrei"),
-    '#RH2': (htmlContent) => htmlContent.includes("ראש השנה ב׳"),
-    '#YK': (htmlContent) => htmlContent.includes("10 Tishrei"),
-    '#SUK1': (htmlContent) => htmlContent.includes("סוכות א"),
-    '#SUK2': (htmlContent) => htmlContent.includes("סוכות ב"),
-    '#CHM-SUK': (htmlContent) => htmlContent.includes("Sukkot") && htmlContent.includes("CH’’M"),
-    '#SHM-SUK': (htmlContent) => htmlContent.includes("Shmini Atzeret"),
-    '#SIT': (htmlContent) => htmlContent.includes("Simchat Torah"),
-
-    '#CHAN': (htmlContent) => {
-        const eightdays = [
-            "25 Kislev", "26 Kislev", "27 Kislev", "28 Kislev", "29 Kislev", "30 Kislev", "1 Tevet", "2 Tevet"
-        ];
-        return eightdays.some(day => htmlContent.includes(day));
-    },
-    '#CHAN1': (htmlContent) => htmlContent.includes("25 Kislev"), 
-    '#CHAN2': (htmlContent) => htmlContent.includes("26 Kislev"),
-    '#CHAN3': (htmlContent) => htmlContent.includes("27 Kislev"),
-    '#CHAN4': (htmlContent) => htmlContent.includes("28 Kislev"),
-    '#CHAN5': (htmlContent) => htmlContent.includes("29 Kislev"),
-    '#CHAN6': (htmlContent) => htmlContent.includes("30 Kislev"),
-    '#CHAN7': (htmlContent) => htmlContent.includes("1 Tevet"),
-    '#CHAN8': (htmlContent) => htmlContent.includes("2 Tevet"),
-
-    '#RC': (htmlContent) => htmlContent.toLowerCase().includes("rosh chodesh"),
-    '#XRC': (htmlContent) => !htmlContent.toLowerCase().includes("rosh chodesh"),
-    '#ERS': null // Handled separately
-};
+<html> 
+    <head> 
+      <meta http-equiv="content-type" content="text/html; charset=UTF-8" /> 
+      <title>Google Maps Multiple Markers</title> 
+      <script src="http://maps.google.com/maps/api/js?sensor=false" 
+              type="text/javascript"></script>
+    </head> 
+    <body>
+      <div id="map" style="width: 500px; height: 400px;"></div>
+    
+      <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+      <script type="text/javascript">
+    
+        var image = {
+        url: 'https://developers.google.com/maps/documentation/javascript/examples/images/beachflag.png',
+        // This marker is 20 pixels wide by 32 pixels tall.
+        size: new google.maps.Size(20, 32),
+        // The origin for this image is 0,0.
+        origin: new google.maps.Point(0,0),
+        // The anchor for this image is the base of the flagpole at 0,32.
+        anchor: new google.maps.Point(0, 32)
+      };
+      var shadow = {
+        url: 'https://developers.google.com/maps/documentation/javascript/examples/images/beachflag_shadow.png',
+        // The shadow image is larger in the horizontal dimension
+        // while the position and offset are the same as for the main image.
+        size: new google.maps.Size(37, 32),
+        origin: new google.maps.Point(0,0),
+        anchor: new google.maps.Point(0, 32)
+      };
+    
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 2,
+            center: new google.maps.LatLng(62.457171, 17.350953),
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        });
+    
+        var infowindow = new google.maps.InfoWindow();
+    
+        setTimeout(function () {
+            loadData(); 
+        },500);
+    
+    
+        function loadData()
+        {
+            //alert("Loading"); 
+            var marker, i;
+    
+            var url = "http://blackcab.didair.se/api/drivers";
+            var name;
+            var lat;
+            var lon;
+            var locations;
+    
+            $.getJSON(url, function (response) {handleData(response)});
+        }
+    
+        function handleData(response)
+        {
+            //alert(response);
+            var n;
+            for(n=0; n<response.drivers.length; n++)
+            {
+                name = response.drivers[n].name;
+                //alert(name);
+                lat = response.drivers[n].currentLat;
+                lon = response.drivers[n].currentLon;
+                var myLatLng = new google.maps.LatLng(lat,lon);
+                var marker = new google.maps.Marker({
+                    position: myLatLng,
+                    shadow: shadow,
+                    icon:image,
+                    map: map,
+                    title: name,
+                    zIndex: 1
+                });
+            }   
+        }
+    
+    
+    
+      </script>
+    </body>
+    </html>

@@ -1,204 +1,304 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>index</title>
+    <title>Updated Prayer Times Map</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" 			rel="stylesheet">
-    <link href="https://db.onlinewebfonts.com/c/22db60d19480ba0274c9eb6ba877ea9b?family=Aharoni+Bold+V1" rel="stylesheet">
-    <!-- CSS Links -->	  
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+      rel="stylesheet"
+    >
+    <link
+      href="https://db.onlinewebfonts.com/c/22db60d19480ba0274c9eb6ba877ea9b?family=Aharoni+Bold+V1"
+      rel="stylesheet"
+    >
+    <!-- CSS Links -->
     <link rel="stylesheet" href="css/vendor.css">
     <link rel="stylesheet" href="css/styles.css">
+
+    <!-- Google Maps JS (include &libraries=places for Autocomplete) -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBOtVjKr3D0vZmwg1QlxCy6SR4rVQenaPU&libraries=places"
+    ></script>
+
+    <!-- Custom Scripts -->
     <script src="time.js"></script>
-    <script src="zmanim.js" defer></script>
     <script src="prayertimes.js" defer></script>
-    <script type="module" src="autocomp.js"></script>    
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBOtVjKr3D0vZmwg1QlxCy6SR4rVQenaPU&libraries=places"></script>   
-  </head> 
+  </head>
+
   <body>
-     <h1>Jewish Calendar Event Checker</h1>
-  <div>  
-    <h1>Dynamic Iframe Map with Autocomplete</h1>
-    <div id="map-container">
+    <h1>Jewish Calendar Event Checker</h1>
+    <div>
+      <h1>Dynamic Iframe Map with Autocomplete</h1>
+      <div id="map-container">
         <div id="map"></div>
         <input id="search-input" type="text" placeholder="Search location..." />
-    </div>
-    <div>
+      </div>
+      <div>
         <!-- Button to trigger the map update -->
-        <button type="button" id="checkPrayerTimesButton" class="checkPrayerTimesButton">Check Prayer Times</button>
-    </div>
+        <button type="button" id="checkPrayerTimesButton" class="checkPrayerTimesButton">
+          Check Prayer Times
+        </button>
+      </div>
 
-    <h1>Filtered Prayer Times</h1>
-    <label for="datePicker">Select a Date:</label>
-    <input type="date" id="datePicker">
+      <h1>Filtered Prayer Times</h1>
+      <label for="datePicker">Select a Date:</label>
+      <input type="date" id="datePicker" />
 
+      <!-- Tefilah Filter Buttons -->
       <button class="tefilah-button" data-tefilah="Maariv">Maariv</button>
       <button class="tefilah-button" data-tefilah="Mincha">Mincha</button>
       <button class="tefilah-button" data-tefilah="Shachris">Shachris</button>
       <button class="tefilah-button" data-tefilah="Special">Special</button>
-  </div>
-    <div id="prayerTimesOutput"></div>
-  </div>
+    </div>
+
+    <!-- 
+      This is your dynamic JSON block. 
+      Adjust or expand the JSON as needed (e.g., if you want to store a 'date' attribute).
+    -->
+    <div id="prayerTimesOutput" style="margin-top:20px;">
+      <pre>
+      [
+        {
+          "Shul":"Testing1",
+          "Tefilah":"['Shachris']",
+          "Time":"12:06 PM",
+          "Data":"44 Coles Way, Lakewood, NJ",
+          "strCode":"['#ERS']",
+          "latitude":40.0684484,
+          "longitude":-74.2056221
+        }
+      ]
+      </pre>
+    </div>
 
     <script>
-        let map, autocomplete;
+      let map;                // Google Map instance
+      let autocomplete;       // Google Maps Autocomplete instance
+      let markers = [];       // Keep track of displayed markers
+      let globalTefilah = ""; // Currently selected Tefilah filter
+      let globalDate = "";    // Currently selected Date filter (not used unless JSON has date)
 
-        function initMap() {
-            // Initialize the map
-            map = new google.maps.Map(document.getElementById("map"), {
-                center: { lat: 40.0700, lng: -74.2075 }, // Default to Lakewood, NJ
-                zoom: 13,
-                disableDefaultUI: true, // Hide default UI including Map/Satellite toggle
-            });
+      async function initMap() {
+        // Initialize the map using the newer 'importLibrary' approach
+        const { Map } = await google.maps.importLibrary("maps");
 
-            // Input field for autocomplete
-            const input = document.getElementById("search-input");
-            autocomplete = new google.maps.places.Autocomplete(input);
+        const center = { lat: 40.0700, lng: -74.2075 };
+        map = new Map(document.getElementById("map"), {
+          zoom: 12,
+          center,
+          mapId: "4504f8b37365c3d0",
+          disableDefaultUI: true,
+        });
 
-            // Bias autocomplete results to the map's viewport
-            autocomplete.bindTo("bounds", map);
+        // Set up Autocomplete on #search-input
+        const input = document.getElementById("search-input");
+        autocomplete = new google.maps.places.Autocomplete(input);
 
-            // Handle place selection
-            autocomplete.addListener("place_changed", () => {
-                const place = autocomplete.getPlace();
+        // Bias Autocomplete results to the map's viewport
+        autocomplete.bindTo("bounds", map);
 
-                if (!place.geometry || !place.geometry.location) {
-                    alert("No details available for input: '" + place.name + "'");
-                    return;
-                }
+        // Handle place selection from Autocomplete
+        autocomplete.addListener("place_changed", () => {
+          const place = autocomplete.getPlace();
+          if (!place.geometry || !place.geometry.location) {
+            alert("No details available for input: '" + (place.name || "") + "'");
+            return;
+          }
+          // Center the map on the selected location
+          map.setCenter(place.geometry.location);
+          map.setZoom(15);
+        });
+      }
 
-                // Center the map on the selected location
-                map.setCenter(place.geometry.location);
-                map.setZoom(15);
-            });
-
-            // Fetch dynamic data from #prayerTimesOutput
-            const rawData = document.getElementById("prayerTimesOutput").textContent;
-            const data = rawData ? JSON.parse(rawData) : [];
-
-            // Add interactive markers
-            data.forEach((location) => {
-                const marker = new google.maps.Marker({
-                    position: { lat: location.latitude, lng: location.longitude },
-                    map: map,
-                    title: location.Shul,
-                    animation: google.maps.Animation.DROP,
-                    icon: {
-                        url: "https://maps.google.com/mapfiles/kml/shapes/poi.png", // Custom marker icon
-                        scaledSize: new google.maps.Size(30, 30),
-                    },
-                });
-
-                // Info window for each marker
-                const infoWindow = new google.maps.InfoWindow({
-                    content: `
-                        <div>
-                            <h3>${location.Shul}</h3>
-                            <p><strong>Tefilah:</strong> ${location.Tefilah}</p>
-                            <p><strong>Time:</strong> ${location.Time}</p>
-                            <p><strong>Address:</strong> ${location.Data}</p>
-                            <p><strong>Code:</strong> ${location.strCode}</p>
-                        </div>
-                    `,
-                });
-
-                // Open info window and toggle bounce on marker click
-                marker.addListener("click", () => {
-                    infoWindow.open(map, marker);
-
-                    // Toggle bounce animation
-                    if (marker.getAnimation() !== null) {
-                        marker.setAnimation(null);
-                    } else {
-                        marker.setAnimation(google.maps.Animation.BOUNCE);
-
-                        // Stop bounce after 2 seconds
-                        setTimeout(() => marker.setAnimation(null), 2000);
-                    }
-                });
-
-                // Add hover effect
-                marker.addListener("mouseover", () => {
-                    marker.setIcon({
-                        url: "https://maps.google.com/mapfiles/kml/shapes/info-i_maps.png",
-                        scaledSize: new google.maps.Size(30, 30),
-                    });
-                });
-
-                marker.addListener("mouseout", () => {
-                    marker.setIcon({
-                        url: "https://maps.google.com/mapfiles/kml/shapes/poi.png",
-                        scaledSize: new google.maps.Size(30, 30),
-                    });
-                });
-            });
+      // Parse the JSON in #prayerTimesOutput and add markers based on filters
+      function updateMarkersFromOutput() {
+        // 1) Get the JSON from #prayerTimesOutput
+        const preElement = document.querySelector("#prayerTimesOutput pre");
+        if (!preElement) {
+          console.error("prayerTimesOutput pre element not found.");
+          return;
+        }
+        const dataString = preElement.textContent.trim();
+        if (!dataString) {
+          console.error("prayerTimesOutput is empty.");
+          return;
         }
 
-        // Initialize the map when the window loads
-        window.onload = initMap;
+        // 2) Parse the JSON
+        let data = [];
+        try {
+          data = JSON.parse(dataString);
+        } catch (error) {
+          console.error("Failed to parse prayerTimesOutput:", error);
+          return;
+        }
 
-        // Event listeners for buttons
-        document.getElementById("checkPrayerTimesButton").addEventListener("click", () => {
-            alert("Checking prayer times... (implement logic here)");
-        });
+        // 3) Filter by Tefilah (if globalTefilah is set)
+        if (globalTefilah) {
+          // Tefilah is typically stored like "['Shachris']", so do a string include or pattern check
+          data = data.filter((item) =>
+            item.Tefilah && item.Tefilah.toLowerCase().includes(globalTefilah.toLowerCase())
+          );
+        }
 
-        document.querySelectorAll(".tefilah-button").forEach(button => {
-            button.addEventListener("click", (e) => {
-                const tefilah = e.target.dataset.tefilah;
-                alert(`Filtering for ${tefilah}... (implement logic here)`);
+        // 4) Filter by Date (only if you add date info in your JSON)
+        if (globalDate) {
+          // Example if your JSON had a field called "date" in 'YYYY-MM-DD' format:
+          // data = data.filter((item) => item.date === globalDate);
+          // Currently skipping because your sample JSON does not have dates.
+        }
+
+        // Remove old markers from the map
+        markers.forEach((marker) => marker.setMap(null));
+        markers = [];
+
+        // 5) Add new markers
+        data.forEach((entry) => {
+          // Must have lat/lng to place a marker
+          if (entry.position) {
+            const markerPosition = {
+                position: entry.position,
+            };
+            // Create a standard Google Maps marker
+            const marker = new google.maps.marker.AdvancedMarkerElement({
+              position: markerPosition,
+              map,
+              title: entry.Shul,
+              icon: {
+                url: "https://maps.google.com/mapfiles/kml/shapes/poi.png",
+                scaledSize: new google.maps.Size(20, 20),
+              },
             });
+
+            // InfoWindow for each marker
+            const infoWindow = new google.maps.InfoWindow({
+              content: `
+                <div>
+                  <h3>${entry.Shul}</h3>
+                  <p><strong>Tefilah:</strong> ${entry.Tefilah}</p>
+                  <p><strong>Time:</strong> ${entry.Time}</p>
+                  <p><strong>Address:</strong> ${entry.Data}</p>
+                  <p><strong>Code:</strong> ${entry.strCode}</p>
+                </div>
+              `,
+            });
+
+            // Open the InfoWindow on marker click
+            marker.addListener("click", () => {
+              infoWindow.open(map, marker);
+            });
+
+            // Store marker reference
+            markers.push(marker);
+          } else {
+            console.warn("Location data missing latitude or longitude.", entry);
+          }
         });
+      }
+
+      // --- EVENT LISTENERS ---
+
+      // Tefilah buttons
+      document.querySelectorAll(".tefilah-button").forEach((btn) => {
+        btn.addEventListener("click", (event) => {
+          // Get Tefilah from data attribute
+          globalTefilah = event.target.dataset.tefilah || "";
+          updateMarkersFromOutput();
+        });
+      });
+
+      // Date filter (if your JSON eventually supports a 'date' field)
+      document.getElementById("datePicker").addEventListener("change", (event) => {
+        globalDate = event.target.value; // e.g. "2024-12-31"
+        updateMarkersFromOutput();
+      });
+
+      // "Check Prayer Times" button
+      document
+        .getElementById("checkPrayerTimesButton")
+        .addEventListener("click", () => {
+          console.log("Check Prayer Times button clicked.");
+          updateMarkersFromOutput();
+        });
+
+      // Initialize the map when the page loads
+      window.onload = initMap;
     </script>
+
+    <!-- Updated styles -->
     <style>
-        body {    
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            padding: 20px;
-        }
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 20px;
+        font-family: "Roboto", sans-serif;
+      }
 
-        #map-container {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 20px;
-        }
+      h1 {
+        margin: 10px 0;
+        font-family: "Aharoni Bold V1", sans-serif;
+      }
 
-        #map {
-            height: 250px;
-            width: 250px;
-            margin-right: 20px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-        }
+      #map-container {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 20px;
+      }
 
-        #search-input {
-            width: 300px;
-            padding: 10px;
-            font-size: 14px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-        }
+      #map {
+        height: 250px;
+        width: 250px;
+        margin-right: 20px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+      }
 
-        .tefilah-button,
-        .checkPrayerTimesButton {
-            margin: 5px 0;
-            padding: 10px 15px;
-            font-size: 14px;
-            border: none;
-            border-radius: 5px;
-            background-color: #007BFF;
-            color: white;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
+      #search-input {
+        width: 300px;
+        padding: 10px;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+      }
 
-        .tefilah-button:hover,
-        .checkPrayerTimesButton:hover {
-            background-color: #0056b3;
-        }
+      .tefilah-button,
+      .checkPrayerTimesButton {
+        margin: 5px 0;
+        padding: 10px 15px;
+        font-size: 14px;
+        border: none;
+        border-radius: 5px;
+        background-color: #007BFF;
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .tefilah-button:hover,
+      .checkPrayerTimesButton:hover {
+        background-color: #0056b3;
+      }
+
+      /* Just a bit of spacing and styling for the JSON output block */
+      #prayerTimesOutput {
+        width: 100%;
+        max-width: 600px;
+        background: #f9f9f9;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 10px;
+      }
+
+      #prayerTimesOutput pre {
+        margin: 0;
+        font-size: 14px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
     </style>
-</body>
+  </body>
 </html>

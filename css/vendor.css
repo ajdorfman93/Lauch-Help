@@ -135,7 +135,7 @@ pre[class*="language-"] {
         margin-right: 20px;
         border: 1px solid #ccc;
         border-radius: 8px;}
-        
+
     #search-input {
         width: 300px;
         padding: 10px;
@@ -383,11 +383,6 @@ pre[class*="language-"] {
     display : none;
 }
 
-:root {
-    /*
-    --swiper-pagination-color: var(--swiper-theme-color);
-    */
-}
 
 .swiper-pagination {
     position   : absolute;
@@ -633,11 +628,7 @@ button.swiper-pagination-bullet {
 
 /* Preloader */
 
-:root {
-    /*
-    --swiper-preloader-color: var(--swiper-theme-color);
-    */
-}
+
 
 .swiper-lazy-preloader {
     width            : 42px;
